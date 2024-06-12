@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+    <listeners>
+        <listener class-name="com.synergyconnect.utilities.ExtentReportListener"></listener>
+    </listeners>
+
+    <!-- Parameters for the suite -->
+    <parameter name="baseUrl" value="https://www.google.com/intl/en-US/gmail/about/" />
+    <parameter name="browser" value="chrome" />
+
+    <test name="Test">
+        <classes>
+            <class name="com.seleniumFramework.testcases.Login"/>
+        </classes>
+    </test>
+</suite>
