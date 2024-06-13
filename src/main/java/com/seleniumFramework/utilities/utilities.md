@@ -5,7 +5,7 @@ The Selenium Framework Utils is a collection of utility classes designed to stre
 ## 1. CustomAssertions.java
 Provides custom assertion methods with detailed error messages to improve the clarity of test failures.
 Example usage:
-````java
+```java
 CustomAssertions.assertEquals(actualValue, expectedValue, "Verify value equality");
 ```
 
@@ -17,6 +17,7 @@ DatabaseUtils.connectToDatabase(url, user, password);
 ResultSet resultSet = DatabaseUtils.executeQuery(query);
 DatabaseUtils.closeConnection();
 ```
+
 ## 3. DataProviderUtils.java
 Reads data from an Excel file and provides it to TestNG tests using data providers.
 Example usage:
@@ -34,6 +35,7 @@ Example usage:
 @String currentDate = DateTimeUtils.getCurrentDate();
 }
 ```
+
 ## 5. EmailUtils.java
 
 Simplifies sending plain text, HTML, or email with attachments using SMTP.
@@ -79,6 +81,7 @@ public void testMethod() {
     // Test logic
 }
 ```
+
 ## 11.ScreenshotUtils.java
 Captures screenshots of web pages and saves them as image files.
 Example usage:
@@ -94,6 +97,7 @@ Example usage:
 UtilMethods.captureScreenShot(driver, "loginPage");
 }
 ```
+
 ## 13.WebElementInteractionUtils.java
 Utility class for interacting with web elements in Selenium WebDriver, such as clicking, typing text, and scrolling.
 Example usage:
