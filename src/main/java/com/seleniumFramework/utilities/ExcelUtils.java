@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ExcelUtility {
+public class ExcelUtils {
 
     private String filePath;
     private Workbook workbook;
@@ -20,7 +20,7 @@ public class ExcelUtility {
      * 
      * @param filePath the path of the Excel file to be read or written
      */
-    public ExcelUtility(String filePath) {
+    public ExcelUtils(String filePath) {
         this.filePath = filePath;
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
             this.workbook = new XSSFWorkbook(fileInputStream);
@@ -138,7 +138,7 @@ public class ExcelUtility {
     }
 
     public static void main(String[] args) {
-        ExcelUtility excelUtility = new ExcelUtility("path/to/excel/file.xlsx");
+        ExcelUtils excelUtility = new ExcelUtils("path/to/excel/file.xlsx");
 
         // Reading data
         List<List<String>> data = excelUtility.readExcelData("Sheet1");

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class DataProviderUtility {
+public class DataProviderUtils {
 
     /**
      * Reads data from the specified Excel file and sheet, and provides it to TestNG tests.
