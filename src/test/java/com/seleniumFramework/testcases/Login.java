@@ -5,7 +5,7 @@ import com.seleniumFramework.common.BaseClass;
 
 public class Login extends BaseClass{
 	@Test
-	//@Test(retryAnalyzer = com.synergyconnect.utilities.RetryAnalyzer.class)
+	//@Test(retryAnalyzer = com.seleniumFramework.utilities.RetryAnalyzer.class)
 	public void verifyLoginisworking() throws InterruptedException {
 		
 		getDriver().get(url);
