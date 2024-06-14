@@ -2,7 +2,7 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Suite">
     <listeners>
-        <listener class-name="com.synergyconnect.utilities.ExtentReportListener"></listener>
+        <listener class-name="com.seleniumFramework.utilities.ExtentReportListener"></listener>
     </listeners>
 
     <!-- Parameters for the suite -->

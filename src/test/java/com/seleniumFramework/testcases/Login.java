@@ -9,7 +9,7 @@ public class Login extends BaseClass{
 	public void verifyLoginisworking() throws InterruptedException {
 		
 		getDriver().get(url);
-		logger.info("url opeed");
+		logger.info("url opened");
 		Thread.sleep(500);
 		getDriver().manage().window().maximize();
 		Thread.sleep(500);

@@ -1,3 +1,4 @@
+# common
 It looks like you have a solid foundation for your Selenium framework with the BaseClass you provided. This class serves as the foundation for setting up WebDriver instances and managing test setup and teardown.
 
 Here are some key points and suggestions based on the provided code:

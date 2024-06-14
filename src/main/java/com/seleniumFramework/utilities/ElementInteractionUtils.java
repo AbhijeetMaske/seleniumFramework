@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * Utility class to interact with web elements in Selenium WebDriver.
  */
-public class WebElementInteractionUtils {
+public class ElementInteractionUtils {
 
-    private static final Logger logger = LogManager.getLogger(WebElementInteractionUtils.class);
+    private static final Logger logger = LogManager.getLogger(ElementInteractionUtils.class);
     private WebDriver driver = null;
     private WebDriverWait wait;
 

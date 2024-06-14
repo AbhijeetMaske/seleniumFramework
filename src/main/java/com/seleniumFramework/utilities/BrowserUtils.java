@@ -61,4 +61,58 @@ public class BrowserUtils {
         System.out.println("Firefox Version: " + getFirefoxBrowserVersion());
         //System.out.println("Opera Version: " + getOperaBrowserVersion());
     }
+    
+    /********************************************************************************************
+     * Configures Chrome browser options.
+     * 
+     * @return the configured ChromeOptions object
+     * 
+     * @author Abhijeet Maske Created June 27,2023
+     * @version 1.0 June 27,2023
+     ********************************************************************************************/
+    public static ChromeOptions configureChromeOptions() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--disable-notifications");
+        //options.addArguments("--headless");
+        options.addArguments("--window-size=1920,1080");
+        // Add other Chrome-specific options here
+        System.out.println("chrome config added");
+        return options;
+    }
+
+    /********************************************************************************************
+     * Configures Firefox browser options.
+     * 
+     * @return the configured FirefoxOptions object
+     * 
+     * @author Abhijeet Maske Created June 27,2023
+     * @version 1.0 June 27,2023
+     ********************************************************************************************/
+    public static FirefoxOptions configureFirefoxOptions() {
+        FirefoxOptions options = new FirefoxOptions();
+        options.addPreference("dom.webnotifications.enabled", false);
+        options.addPreference("privacy.popups.showBrowserMessage", false);
+        //options.setHeadless(true);
+        // Add other Firefox-specific options here
+        return options;
+    }
+
+    /********************************************************************************************
+     * Configures Edge browser options.
+     * 
+     * @return the configured EdgeOptions object
+     * 
+     * @author Abhijeet Maske Created June 27,2023
+     * @version 1.0 June 27,2023
+     ********************************************************************************************/
+    public static EdgeOptions configureEdgeOptions() {
+        EdgeOptions options = new EdgeOptions();
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--disable-notifications");
+        options.addArguments("--headless");
+        options.addArguments("--window-size=1920,1080");
+        // Add other Edge-specific options here
+        return options;
+    }
 }
