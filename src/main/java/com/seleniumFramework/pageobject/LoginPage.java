@@ -50,7 +50,8 @@ public class LoginPage {
 		boolean status = false;
 		try {
             wait.until(ExpectedConditions.elementToBeClickable(signUpButton));
-            elementInteractionUtils.click(signUpButton);
+            ElementInteractionUtils.highlightElement(signUpButton);
+            ElementInteractionUtils.click(signUpButton);
             System.out.println("clicked on signup button");
             status = true;
         } catch (Exception e) {
