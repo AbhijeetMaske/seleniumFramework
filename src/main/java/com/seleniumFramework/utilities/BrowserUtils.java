@@ -9,23 +9,42 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BrowserUtils {
+	private static final Logger logger = LogManager.getLogger(BrowserUtils.class);
 
+	/**
+     * Retrieves the version of the Chrome browser.
+     * 
+     * @return The version of the Chrome browser.
+     */
+	
     public static String getChromeBrowserVersion() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         WebDriver driver = new ChromeDriver(options);
         return getBrowserVersion(driver, "Chrome/");
     }
-
+    
+    /**
+     * Retrieves the version of the Edge browser.
+     * 
+     * @return The version of the Edge browser.
+     */
     public static String getEdgeBrowserVersion() {
         WebDriverManager.edgedriver().setup();
         EdgeOptions options = new EdgeOptions();
         WebDriver driver = new EdgeDriver(options);
         return getBrowserVersion(driver, "Edg/");
     }
-
+    
+    /**
+     * Retrieves the version of the Firefox browser.
+     * 
+     * @return The version of the Firefox browser.
+     */
     public static String getFirefoxBrowserVersion() {
         WebDriverManager.firefoxdriver().setup();
         FirefoxOptions options = new FirefoxOptions();
@@ -54,7 +73,12 @@ public class BrowserUtils {
         }
         return version;
     }
-
+    /**
+     * Configures Chrome browser options.
+     * 
+     * @return The configured ChromeOptions object.
+     */
+    
     public static void main(String[] args) {
         System.out.println("Chrome Version: " + getChromeBrowserVersion());
         System.out.println("Edge Version: " + getEdgeBrowserVersion());
@@ -75,9 +99,9 @@ public class BrowserUtils {
         options.addArguments("--disable-popup-blocking");
         options.addArguments("--disable-notifications");
         //options.addArguments("--headless");
-        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--window-size=540,720");
         // Add other Chrome-specific options here
-        System.out.println("chrome config added");
+        logger.info("Chrome options configured");
         return options;
     }
 
@@ -95,6 +119,7 @@ public class BrowserUtils {
         options.addPreference("privacy.popups.showBrowserMessage", false);
         //options.setHeadless(true);
         // Add other Firefox-specific options here
+        logger.info("Firefox options configured");
         return options;
     }
 
@@ -113,6 +138,7 @@ public class BrowserUtils {
         options.addArguments("--headless");
         options.addArguments("--window-size=1920,1080");
         // Add other Edge-specific options here
+        logger.info("Edge options configured");
         return options;
     }
 }

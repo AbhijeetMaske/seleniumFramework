@@ -1,16 +1,14 @@
 package com.seleniumFramework.common;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 
@@ -27,10 +25,21 @@ public class BaseClass {
 	protected String url;
 	protected String browser;
 	protected String browserVersion;
-
 	protected static WebDriver driver;
 	protected static Logger logger;
 	private static ThreadLocal<WebDriver> driverObject = new ThreadLocal<>();
+	
+	
+	public static void initializeLogs() {
+        File logDir = new File("logs");
+        if (!logDir.exists()) {
+            logDir.mkdir();
+        }
+    }
+	
+	static {
+        initializeLogs(); // Ensure logs directory exists
+    }
 
 	/********************************************************************************************
 	 * Gets the current WebDriver instance for the thread.
@@ -70,7 +79,10 @@ public class BaseClass {
 			browserVersion = BrowserUtils.getEdgeBrowserVersion();
 			break;
 		default:
-			throw new IllegalArgumentException("Unsupported browser: " + browser);
+			 String errorMessage = "Unsupported browser: " + browser;
+             logger.error(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+			
 		}
 		System.out.println("Using " + browser + " version: " + browserVersion);
 	}
@@ -82,7 +94,7 @@ public class BaseClass {
 	 *@author Abhijeet Maske Created June 27,2023
 	 *@version 1.0 June 27,2023
 	 ********************************************************************************************/
-	@BeforeMethod
+	
 	public void setup(Method method) {
 		logger = LogManager.getLogger(method.getDeclaringClass());
 		logger.info("Starting test method: " + method.getName());

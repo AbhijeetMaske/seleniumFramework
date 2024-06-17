@@ -4,6 +4,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,18 +14,27 @@ import org.apache.logging.log4j.Logger;
 public class ElementInteractionUtils {
 
     private static final Logger logger = LogManager.getLogger(ElementInteractionUtils.class);
-    private WebDriver driver = null;
+    private WebDriver driver;
     private WebDriverWait wait;
-
-    /**
-     * Clicks on a web element.
-     * @param element the web element to click
-     */
+    
+    
+	public ElementInteractionUtils(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+    /********************************************************************************************
+	 * Clicks on a web element.
+	 * 
+	 * @param element the web element to click
+	 * 
+	 *@author Abhijeet Maske Created June 27,2023
+	 *@version 1.0 June 27,2023
+	 ********************************************************************************************/
     public void click(WebElement element) {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(element));
             element.click();
-            logger.info("Clicked on element: " + getElementDescription(element));
+            logger.info("Clicked on element: " + element);
         } catch (NoSuchElementException | TimeoutException e) {
             logger.error("Unable to click on element: " + getElementDescription(element), e);
         }
@@ -114,5 +124,23 @@ public class ElementInteractionUtils {
         String tagName = element.getTagName();
         String attributes = element.toString().split("-> ")[1].replace("]", "");
         return tagName + " [" + attributes + "]";
+    }
+    
+    /**
+     * Clicks on a web element using JavaScript.
+     * 
+     * @param element the web element to click
+     * 
+     * @author Abhijeet Maske Created June 27,2023
+     * @version 1.0 June 27,2023
+     */
+    public void clickByJS(WebElement element) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click();", element);
+            logger.info("Clicked on element using JavaScript: " + getElementDescription(element));
+        } catch (NoSuchElementException e) {
+            logger.error("Unable to click on element using JavaScript: " + getElementDescription(element), e);
+        }
     }
 }

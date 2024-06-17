@@ -3,8 +3,9 @@ package com.seleniumFramework.utilities;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
@@ -18,31 +19,23 @@ import com.seleniumFramework.common.BaseClass;
 public class ExtentReportListener implements ITestListener {
 
     private static final String REPORTS_DIR = System.getProperty("user.dir") + "\\extentReports\\";
-    private static final String SCREENSHOT_DIR = System.getProperty("user.dir") + "\\screenshots\\";
     private static ExtentReports extentReport;
     private static ExtentSparkReporter sparkReporter;
     private static ThreadLocal<ExtentTest> localExtent = new ThreadLocal<>();
     private static File reportFile;  // Class-level variable to store the report file
+    private static final Logger logger = (Logger) LogManager.getLogger(ExtentReportListener.class);
     
     public static ExtentTest getExtent() {
         return localExtent.get();
     }
 
-    private static String getCurrentTimeDate() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy_MM_dd");
-        String formattedDate = now.format(dateFormatter);
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH_mm_ss_SSS");
-        String formattedTime = now.format(timeFormatter);
-        return formattedDate + "_" + formattedTime;
-    }
-
     @Override
     public void onStart(ITestContext context) {
         extentReport = new ExtentReports();
-        reportFile = new File(REPORTS_DIR + getCurrentTimeDate() + "_extentReport.html");      
+        reportFile = new File(REPORTS_DIR + DateTimeUtils.getCurrentDateTime() + "_extentReport.html");      
         sparkReporter = new ExtentSparkReporter(reportFile);
         extentReport.attachReporter(sparkReporter);
+        logger.info("Extent report initialized at: " + reportFile.getAbsolutePath());
     }
 
     @Override
@@ -51,8 +44,9 @@ public class ExtentReportListener implements ITestListener {
             extentReport.flush();
             try {
             	Desktop.getDesktop().browse(reportFile.toURI());
+            	logger.info("Extent report opened: " + reportFile.getAbsolutePath());
             } catch (IOException e) {
-                e.printStackTrace();
+            	 logger.error("Error opening extent report: " + e.getMessage(), e);
             }
         }
         localExtent.remove();
@@ -60,37 +54,44 @@ public class ExtentReportListener implements ITestListener {
 
     @Override
     public void onTestStart(ITestResult result) {
-        System.out.println("On test start called...." + result.getMethod().getMethodName());
+    	logger.info("Test started: " + result.getMethod().getMethodName());
         ExtentTest extentTest = extentReport.createTest(result.getMethod().getMethodName());
         localExtent.set(extentTest);
     }
 
     @Override
     public void onTestSuccess(ITestResult result) {
-        System.out.println("Test pass called...." + result.getMethod().getMethodName());
+    	logger.info("Test passed: " + result.getMethod().getMethodName());
         ExtentTest extentTest = localExtent.get();
         if (extentTest != null) {
             extentTest.log(Status.PASS, "Test passed: " + result.getMethod().getMethodName());
         } else {
-            System.err.println("ExtentTest is null in onTestSuccess for method: " + result.getMethod().getMethodName());
+        	logger.error("ExtentTest is null in onTestSuccess for method: " + result.getMethod().getMethodName());
         }
     }
 
     @Override
     public void onTestFailure(ITestResult result) {
         String methodName = result.getMethod().getMethodName();
-        System.out.println("On test failure called...." + methodName);
+        logger.error("Test failed: " + methodName);
         ExtentTest extentTest = localExtent.get();
         if (extentTest != null) {
             String screenshotPath = null;
             try {
-                screenshotPath = UtilMethods.captureScreenShot(BaseClass.getDriver(), methodName);
-            } catch (IOException e) {
-                e.printStackTrace();
+            	// Ensure the browser is initialized before taking a screenshot
+                if (BaseClass.getDriver() != null) {
+                	screenshotPath = ScreenshotUtils.captureScreenShot(BaseClass.getDriver(), methodName);
+                    extentTest.log(Status.FAIL, "Test failed: " + methodName);
+                    extentTest.log(Status.FAIL, result.getThrowable(),
+                            MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
+                    logger.error("Screenshot saved at: " + screenshotPath);
+                } else {
+                	extentTest.log(Status.FAIL, "Browser is not initialized, cannot capture screenshot.");
+                    logger.error("Browser is not initialized, cannot capture screenshot.");
+                }
+            } catch (Exception e) {
+            	 logger.error("Error capturing screenshot: " + e.getMessage(), e);
             }
-            extentTest.log(Status.FAIL, "Test failed: " + methodName);
-            extentTest.log(Status.FAIL, result.getThrowable(),
-                    MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
         } else {
             System.err.println("ExtentTest is null in onTestFailure for method: " + methodName);
         }
@@ -98,7 +99,7 @@ public class ExtentReportListener implements ITestListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        System.out.println("Test skipped called...." + result.getMethod().getMethodName());
+    	logger.warn("Test skipped: " + result.getMethod().getMethodName());
         ExtentTest extentTest = localExtent.get();
         if (extentTest != null) {
             extentTest.log(Status.SKIP, "Test skipped: " + result.getMethod().getMethodName());
