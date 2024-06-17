@@ -35,6 +35,29 @@ public class ElementInteractionUtils {
 	}
 
 	/********************************************************************************************
+	 * wait for web element and clears text in it
+	 * 
+	 * @param webElement {@link WebElement} -webElement to click
+	 * 
+	 * @return status {@link boolean} - true/false
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean clear(WebElement webElement) {
+		boolean status = false;
+		try {
+			waitForElementToBeVisible(webElement);
+			webElement.clear();
+			status = true;
+			logger.info("Successfully cleared text in webElement: " + webElement.toString());
+		} catch (Exception e) {
+			logger.error("Unable to clear text in webElement: " + webElement.toString(), e);
+		}
+
+		return status;
+	}
+
+	/********************************************************************************************
 	 * Clicks on a web element.
 	 * 
 	 * @param element the web element to click
@@ -116,12 +139,25 @@ public class ElementInteractionUtils {
 	}
 
 	/********************************************************************************************
+	 * Gets the description of a web element (tagName and attributes).
+	 * 
+	 * @param element the web element
+	 * @return the description of the element
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	private static String getElementDescription(WebElement element) {
+		String tagName = element.getTagName();
+		String attributes = element.toString().split("-> ")[1].replace("]", "");
+		return tagName + " [" + attributes + "]";
+	}
+
+	/********************************************************************************************
 	 * Send text in element with javascript.
 	 * 
 	 * @param webElement {@link WebElement} -webElement to click
-	 * 
 	 * @param value      {@link String} - value too be entered
-	 * 
 	 * @return status {@link boolean} - true/false
 	 * 
 	 * @author Abhijeet Maske Created June 27,2023
@@ -138,8 +174,8 @@ public class ElementInteractionUtils {
 	 * 
 	 * @param webElement {@link WebElement} -webElement to click
 	 * @param value      {@link String} - value too be entered
-	 * 
 	 * @return status {@link boolean} - true/false
+	 * 
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
@@ -209,29 +245,6 @@ public class ElementInteractionUtils {
 			logger.error("Unable to select the value at index '" + index + "' from the dropdown list: "
 					+ webElement.toString(), e);
 		}
-		return status;
-	}
-
-	/********************************************************************************************
-	 * wait for web element and clears text in it
-	 * 
-	 * @param webElement {@link WebElement} -webElement to click
-	 * 
-	 * @return status {@link boolean} - true/false
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean clear(WebElement webElement) {
-		boolean status = false;
-		try {
-			waitForElementToBeVisible(webElement);
-			webElement.clear();
-			status = true;
-			logger.info("Successfully cleared text in webElement: " + webElement.toString());
-		} catch (Exception e) {
-			logger.error("Unable to clear text in webElement: " + webElement.toString(), e);
-		}
-
 		return status;
 	}
 
@@ -528,50 +541,6 @@ public class ElementInteractionUtils {
 	}
 
 	/********************************************************************************************
-	 * Switch to frame
-	 * 
-	 * @param indexOrNameOrId {@link String} - Id, Name or Index of the frames
-	 * @return status {@link boolean} - true/false
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean switchToFrame(String indexOrNameOrId) {
-		boolean status = false;
-		try {
-			logger.info("Switching to frame: " + indexOrNameOrId);
-			WebDriver driver = BaseClass.getDriver();
-			((RemoteWebDriver) driver).switchTo().frame(indexOrNameOrId);
-			status = true;
-		} catch (Exception e) {
-			logger.error("Unable to switch to frame: " + indexOrNameOrId, e);
-		}
-		return status;
-	}
-
-	/********************************************************************************************
-	 * Switch to default frame
-	 * 
-	 * @param idNameIndex {@link String} - Id, Name or Index of the frames
-	 * @return status {@link boolean} - true/false
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean switchToDefaultContent() {
-		boolean status = false;
-		try {
-			logger.info("Switching to default content");
-			WebDriver driver = BaseClass.getDriver();
-			((RemoteWebDriver) driver).switchTo().defaultContent();
-			status = true;
-		} catch (Exception e) {
-			logger.error("Unable to switch to default content", e);
-		}
-		return status;
-	}
-
-	/********************************************************************************************
 	 * Pause the test action
 	 * 
 	 * @param waitTime {@link Integer} - The amount of the time in milliseconds to
@@ -726,13 +695,15 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Highlights the specified WebElement by adding a border and changing its color
 	 * temporarily.
 	 * 
 	 * @param element The WebElement to highlight.
-	 */
-
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
 	public static void highlightElement(WebElement element) {
 		for (int i = 0; i < 3; i++) {
 			JavascriptExecutor js;
@@ -744,12 +715,15 @@ public class ElementInteractionUtils {
 		}
 	}
 
-	/**
+	/********************************************************************************************
 	 * Switches to a different window based on the index provided.
 	 * 
 	 * @param value The index of the window to switch to.
 	 * @return true if the window was successfully switched, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
 
 	public static boolean switchWindow(int value) {
 		boolean status = false;
@@ -768,14 +742,17 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Closes the current window and switches to the first window in the window
 	 * handles list.
 	 * 
 	 * @param value Unused parameter. Keeping for compatibility with other methods.
 	 * @return true if the window was successfully closed and switched, false
 	 *         otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
 
 	public static boolean closeWindow(int Value) {
 		boolean status = false;
@@ -792,12 +769,79 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
+	 * Switch to frame
+	 * 
+	 * @param indexOrNameOrId {@link String} - Id, Name or Index of the frames
+	 * @return status {@link boolean} - true/false
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean switchToFrame(String indexOrNameOrId) {
+		boolean status = false;
+		try {
+			logger.info("Switching to frame: " + indexOrNameOrId);
+			WebDriver driver = BaseClass.getDriver();
+			((RemoteWebDriver) driver).switchTo().frame(indexOrNameOrId);
+			status = true;
+		} catch (Exception e) {
+			logger.error("Unable to switch to frame: " + indexOrNameOrId, e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Switch to default frame
+	 * 
+	 * @param idNameIndex {@link String} - Id, Name or Index of the frames
+	 * @return status {@link boolean} - true/false
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean switchToDefaultContent() {
+		boolean status = false;
+		try {
+			logger.info("Switching to default content");
+			WebDriver driver = BaseClass.getDriver();
+			((RemoteWebDriver) driver).switchTo().defaultContent();
+			status = true;
+		} catch (Exception e) {
+			logger.error("Unable to switch to default content", e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Navigates back to the previous page.
+	 * 
+	 * @return true if the navigation is successful, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean navigateBack() {
+		boolean status = false;
+		try {
+			WebDriver driver = BaseClass.getDriver();
+			driver.navigate().back();
+			status = true;
+		} catch (Exception e) {
+			logger.error("Navigation back failed: ", e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
 	 * Moves the mouse cursor to the specified WebElement.
 	 * 
 	 * @param webElement The WebElement to hover over.
 	 * @return true if the mouse hover operation was successful, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
 	public static boolean mousehover(WebElement webElement) {
 		boolean status = false;
 		try {
@@ -813,11 +857,14 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Refreshes the current page.
 	 * 
 	 * @return true if the page refresh was successful, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
 	public static boolean refresh() {
 		boolean status = false;
 		WebDriver driver = null;
@@ -859,13 +906,15 @@ public class ElementInteractionUtils {
 //	    return status;
 //	}
 
-	/**
+	/********************************************************************************************
 	 * Verifies the presence of page text based on the provided test data.
 	 * 
 	 * @param testData a map containing test data.
 	 * @return true if all page texts are present, false otherwise.
-	 */
-
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
 	public static boolean verifyPageText(Map<String, String> testData) {
 		boolean status = false;
 		try {
@@ -894,34 +943,16 @@ public class ElementInteractionUtils {
 		}
 		return status;
 	}
-	
-	/**
-	 * Navigates back to the previous page.
-	 * 
-	 * @return true if the navigation is successful, false otherwise.
-	 */
-	public static boolean navigateBack() {
-		boolean status = false;
-		try {
-			WebDriver driver = BaseClass.getDriver();
-			driver.navigate().back();
-			status = true;
-		} catch (Exception e) {
-			logger.error("Navigation back failed: ", e);
-		}
-		return status;
-	}
 
-	/**
-	 * Gets the description of a web element (tagName and attributes).
-	 * 
-	 * @param element the web element
-	 * @return the description of the element
-	 */
-	private static String getElementDescription(WebElement element) {
-		String tagName = element.getTagName();
-		String attributes = element.toString().split("-> ")[1].replace("]", "");
-		return tagName + " [" + attributes + "]";
+	public static void keyDown(WebElement webElement, String inputString, Keys key) {
+		try {
+	        Actions action = new Actions(BaseClass.getDriver());
+	        action.keyDown(key).sendKeys(webElement, inputString).keyUp(key).perform();
+	        logger.info("Performed keyDown action with key: " + key.name() + ", and input string: " + inputString);
+	    } catch (Exception e) {
+	        logger.error("Unable to perform keyDown action with key: " + key.name() + ", and input string: " + inputString, e);
+	    }
+
 	}
 
 }
