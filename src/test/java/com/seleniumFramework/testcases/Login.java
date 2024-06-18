@@ -53,7 +53,7 @@ public class Login extends BaseClass{
 		System.out.println("clicking on signup");
 		loginPage.getHompageUrl();
 		loginPage.signup();
-		ElementInteractionUtils.keyDown(emailID, "browser", Keys.SHIFT);
+		ElementInteractionUtils.keyDown(emailID, "browser", "Keys.SHIFT");
 		//Assert.assertTrue(status,"sign up click failed");
 		
 	}

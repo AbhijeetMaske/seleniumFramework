@@ -71,7 +71,7 @@ public class ElementInteractionUtils {
 			element.click();
 			logger.info("Clicked on element: " + element);
 		} catch (NoSuchElementException | TimeoutException e) {
-			logger.error("Unable to click on element: " + getElementDescription(element), e);
+			logger.error("Unable to click on element: " + describeElement(element), e);
 		}
 	}
 
@@ -84,7 +84,7 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static boolean clickByJS(WebElement webElement) {
+	public static boolean clickUsingJS(WebElement webElement) {
 		boolean status = false;
 		WebDriver driver = BaseClass.getDriver();
 		JavascriptExecutor js = null;
@@ -133,7 +133,7 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static void sendkeysByJS(WebElement webElement, String value) {
+	public static void sendKeysUsingJS(WebElement webElement, String value) {
 		JavascriptExecutor js = null;
 		js.executeScript("$('#" + "accountNumber" + "').val('" + value + "');");
 	}
@@ -147,7 +147,7 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	private static String getElementDescription(WebElement element) {
+	private static String describeElement(WebElement element) {
 		String tagName = element.getTagName();
 		String attributes = element.toString().split("-> ")[1].replace("]", "");
 		return tagName + " [" + attributes + "]";
@@ -260,7 +260,7 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static boolean waitToBeVisible(WebElement webElement, Duration timeout, Duration polling) {
+	public static boolean waitForVisibility(WebElement webElement, Duration timeout, Duration polling) {
 		boolean status = false;
 		FluentWait<WebDriver> fluentWait;
 		try {
@@ -585,7 +585,7 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static String setMail() {
+	public static String setEmail() {
 		String email = null;
 		try {
 			final String randomEmail = UUID.randomUUID().toString().replace("-", " ") + "@" + "gmail.com";
@@ -648,13 +648,8 @@ public class ElementInteractionUtils {
 			waitForElementToBeVisible(webElement);
 			Select listBox = new Select(webElement);
 			listBox.getAllSelectedOptions().size();
-			logger.info("Selected options: " + listBox.getAllSelectedOptions());
-			logger.info("Number of selected options: " + listBox.getAllSelectedOptions().size());
-			String actual = listBox.getFirstSelectedOption().getText();
-			// if(listBox.getAllSelectedOptions().size()==1)
-			logger.info("Actual selected value: " + actual);
-			logger.info("Expected selected value: " + value);
-			if (actual.contains(value)) {
+			String isSelected = listBox.getFirstSelectedOption().getText();
+			if (isSelected.contains(value)) {
 				status = true;
 			}
 		} catch (Exception e) {
@@ -679,13 +674,7 @@ public class ElementInteractionUtils {
 		try {
 			waitForElementToBeVisible(webElement);
 			Select listBox = new Select(webElement);
-			listBox.getAllSelectedOptions().size();
-			logger.info("Selected options: " + listBox.getAllSelectedOptions());
-			logger.info("Number of selected options: " + listBox.getAllSelectedOptions().size());
 			String actual = listBox.getFirstSelectedOption().getText();
-			// if(listBox.getAllSelectedOptions().size()==1)
-			logger.info("Actual selected value: " + actual);
-			logger.info("Expected selected value: " + value);
 			if (!actual.contains(value)) {
 				status = true;
 			}
@@ -834,30 +823,6 @@ public class ElementInteractionUtils {
 	}
 
 	/********************************************************************************************
-	 * Moves the mouse cursor to the specified WebElement.
-	 * 
-	 * @param webElement The WebElement to hover over.
-	 * @return true if the mouse hover operation was successful, false otherwise.
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean mousehover(WebElement webElement) {
-		boolean status = false;
-		try {
-			if (webElement.isDisplayed()) {
-				Actions action = new Actions(BaseClass.getDriver());
-				action.moveToElement(webElement).build().perform();
-				highlightElement(webElement);
-				status = true;
-			}
-		} catch (Exception e) {
-			logger.error("Problem in hovering over element: " + e.getMessage());
-		}
-		return status;
-	}
-
-	/********************************************************************************************
 	 * Refreshes the current page.
 	 * 
 	 * @return true if the page refresh was successful, false otherwise.
@@ -915,7 +880,7 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static boolean verifyPageText(Map<String, String> testData) {
+	public static boolean verifyPageContainsText(Map<String, String> testData) {
 		boolean status = false;
 		try {
 			String[] verifyingPageText;
@@ -944,15 +909,191 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	public static void keyDown(WebElement webElement, String inputString, Keys key) {
+	public static void keyDown(WebElement webElement, String inputString, String string) {
 		try {
-	        Actions action = new Actions(BaseClass.getDriver());
-	        action.keyDown(key).sendKeys(webElement, inputString).keyUp(key).perform();
-	        logger.info("Performed keyDown action with key: " + key.name() + ", and input string: " + inputString);
-	    } catch (Exception e) {
-	        logger.error("Unable to perform keyDown action with key: " + key.name() + ", and input string: " + inputString, e);
-	    }
+			Actions action = new Actions(BaseClass.getDriver());
+
+			action.keyDown(webElement, "keys" + "." + "string");
+			System.out.println();
+			action.sendKeys(webElement, inputString);
+			action.keyUp(string).perform();
+			logger.info("Performed keyDown action with key: " + string + ", and input string: " + inputString);
+		} catch (Exception e) {
+			logger.error("Unable to perform keyDown action with key: " + string + ", and input string: " + inputString,
+					e);
+		}
 
 	}
 
+	/********************************************************************************************
+	 * Moves the mouse cursor to the specified WebElement.
+	 * 
+	 * @param webElement The WebElement to hover over.
+	 * @return true if the mouse hover operation was successful, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean mouseHover(WebElement webElement) {
+		boolean status = false;
+		try {
+			if (webElement.isDisplayed()) {
+				logger.info("hovering over element: " + webElement);
+				Actions action = new Actions(BaseClass.getDriver());
+				highlightElement(webElement);
+				action.moveToElement(webElement).build().perform();
+				status = true;
+			}
+		} catch (Exception e) {
+			logger.error("Problem in hovering over element: " + e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Double clicks on the specified WebElement.
+	 *
+	 * @param webElement The WebElement to double click on.
+	 * @return true if the action was successful, false otherwise.
+	 */
+	public static boolean doubleClick(WebElement webElement) {
+		boolean status = false;
+		try {
+			if (webElement.isDisplayed()) {
+				logger.info("Double clicking on element: " + webElement);
+				Actions action = new Actions(BaseClass.getDriver());
+				highlightElement(webElement);
+				action.doubleClick(webElement).perform();
+				status = true;
+			}
+		} catch (Exception e) {
+			logger.error("Problem in double clicking on element:" + e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Right clicks on the specified WebElement.
+	 *
+	 * @param webElement The WebElement to right click on.
+	 * @return true if the action was successful, false otherwise.
+	 */
+	public static boolean rightClick(WebElement webElement) {
+		boolean status = false;
+		try {
+			if (webElement.isDisplayed()) {
+				logger.info("Right clicking on element: " + webElement);
+				Actions action = new Actions(BaseClass.getDriver());
+				highlightElement(webElement);
+				action.contextClick(webElement).perform();
+				status = true;
+			}
+		} catch (Exception e) {
+			logger.error("Problem in right clicking on element:" + e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Selects the webelement if it is not already selected and clicks on it.
+	 *
+	 * @param WebElement to select and click.
+	 * @return true if the action was selected and clicked, false otherwise.
+	 */
+	public static boolean selectOptionAndClick(WebElement webElement) {
+		boolean status = false;
+		try {
+			if (!webElement.isSelected()) {
+				webElement.click();
+				status = true;
+				logger.info("webelement selected and clicked: " + webElement);
+			} else {
+				logger.info("webelement is already selected: " + webElement);
+			}
+		} catch (Exception e) {
+			logger.error("Problem in selecting and clicking on element:" + e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Clicks the webelement if it is displayed.
+	 *
+	 * @param webElement to click.
+	 * @return true if the element was displayed and clicked, false otherwise.
+	 */
+	public static boolean isDisplayedAndClick(WebElement webElement) {
+		boolean status = false;
+		try {
+			if (webElement.isDisplayed()) {
+				webElement.click();
+				status = true;
+				logger.info("webelement displyed and clicked: " + webElement);
+			} else {
+				logger.info("webelement is not displayed: " + webElement);
+			}
+		} catch (Exception e) {
+			logger.error("Problem in displaying and clicking on element: " + e.getMessage());
+		}
+		return status;
+	}
+
+	/**
+	 * Clicks the webelement if it is enabled.
+	 *
+	 * @param WebElement to click.
+	 * @return true if the element was enabled and clicked, false otherwise.
+	 */
+	public static boolean isEnabledAndClick(WebElement webElement) {
+		boolean status = false;
+		try {
+			if (webElement.isEnabled()) {
+				webElement.click();
+				status = true;
+				logger.info("webelement enabled and clicked: " + webElement);
+			} else {
+				logger.info("webelement is not enabled: " + webElement);
+			}
+		} catch (Exception e) {
+			logger.error("Problem in enabling and clicking on element: " + e.getMessage());
+		}
+		return status;
+	}
+
+	public static boolean webTables(WebElement webElement) {
+		boolean status = false;
+		String sRow = "1";
+		String sCol = "2";
+		WebDriver driver = BaseClass.getDriver();
+		// Here we are locating the xpath by passing variables in the xpath
+		String sCellValue = driver
+				.findElement(By.xpath(".//*[@id='content']/table/tbody/tr[" + sRow + "]/td[" + sCol + "]")).getText();
+		System.out.println(sCellValue);
+		String sRowValue = "Clock Tower Hotel";
+
+		// First loop will find the 'ClOCK TWER HOTEL' in the first column
+		for (int i = 1; i <= 5; i++) {
+			String sValue = null;
+			sValue = driver.findElement(By.xpath(".//*[@id='content']/table/tbody/tr[" + i + "]/th")).getText();
+			if (sValue.equalsIgnoreCase(sRowValue)) {
+				// If the sValue match with the description, it will initiate one more inner
+				// loop for all the columns of 'i' row
+				for (int j = 1; j <= 5; j++) {
+					String sColumnValue = driver
+							.findElement(By.xpath(".//*[@id='content']/table/tbody/tr[" + i + "]/td[" + j + "]"))
+							.getText();
+					System.out.println(sColumnValue);
+				}
+				break;
+			}
+		}
+
+		return status;
+	}
+	
+	public static boolean dragAndDrop(WebElement source,WebElement target ) {
+		Actions action = new Actions(BaseClass.getDriver());
+		action.dragAndDrop(source, target).perform();
+		return false;
+	}
 }
