@@ -98,7 +98,7 @@ UtilMethods.captureScreenShot(driver, "loginPage");
 }
 ```
 
-## 13.WebElementInteractionUtils.java
+## 13.ElementInteractionUtils.java
 WebElementInteractionUtils is a utility class for interacting with web elements in Selenium WebDriver. It provides methods for common actions such as clicking, typing text, and scrolling, simplifying element interaction in test scripts.
 Example usage:
 ```java
