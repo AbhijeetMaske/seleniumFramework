@@ -35,22 +35,18 @@ To use this Selenium Framework, you need to have the following installed on your
 ## Installation
 
 1. Clone the repository:
-	
 	```sh
 	git clone https://github.com/yourusername/selenium-framework.git
 	```
-	
 2.Navigate to the project directory:
-	
 	```sh
 	cd selenium-framework
 	```
-	
+ 
 3.Install dependencies using Maven:
 	```sh
 	mvn clean install
-	```
-	
+	```	
 ## Project Structure
 
 ```html
