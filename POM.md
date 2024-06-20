@@ -1,4 +1,4 @@
-#Project Object Model (POM) Documentation
+# Project Object Model (POM) Documentation
 
 This document provides a detailed overview of the pom.xml file for the Selenium Framework project. The pom.xml file is a crucial part of a Maven project, defining the project dependencies, plugins, and various build configurations. This guide aims to help you understand the purpose and use of each dependency and plugin included in the pom.xml.
 
