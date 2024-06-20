@@ -1,11 +1,11 @@
-# **seleniumFramework**
+# **Selenium Framework**
 
 Welcome to the ultimate Selenium Framework, designed to simplify and enhance your web automation and testing projects. This framework provides a comprehensive suite of utilities for interacting with web elements, handling browser navigation, performing complex actions, and verifying element properties. By leveraging this framework, you can write cleaner, more maintainable, and reusable code, streamlining your Selenium automation process.
 
 ---
 
-<img  align= center width=50px height=50px src="https://media4.giphy.com/media/3hoLIVAJYkz6T0Ichp/giphy.gif?cid=6c09b952m4j3poopinf91rquev6qy4e8avu0bflq1e0vh4gp&ep=v1_internal_gif_by_id&rid=giphy.gif&ct=s"> <a id="table-of-contents">Table of Contents</a>
-</br>
+<img  align= center width=50px height=50px src="https://media4.giphy.com/media/3hoLIVAJYkz6T0Ichp/giphy.gif?cid=6c09b952m4j3poopinf91rquev6qy4e8avu0bflq1e0vh4gp&ep=v1_internal_gif_by_id&rid=giphy.gif&ct=s"> <a id="table-of-contents">Table of Contents</a></br>
+
  - [Introduction](#Introduction)
  - [Getting Started](#Getting-Started)
  - [Project Structure](#Project-Structure)
@@ -23,7 +23,7 @@ Welcome to the ultimate Selenium Framework, designed to simplify and enhance you
  - [License](Licenses)
  	
 ---
-##  Introduction
+## Introduction
 The Selenium Framework is crafted to address the common challenges faced during web automation. Whether you are a beginner or an experienced tester, this framework is built to make your life easier by providing easy-to-use methods for element interaction, navigation, and verification. Our goal is to make this the best Selenium framework you'll ever use.
 
 # Getting Started
