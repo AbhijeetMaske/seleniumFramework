@@ -24,14 +24,18 @@ import com.seleniumFramework.common.Config;
 public class ElementInteractionUtils {
 
 	private static final Logger logger = LogManager.getLogger(ElementInteractionUtils.class);
-	static WebDriverWait wait;
+	private static WebDriverWait wait;
 	static Duration timeout = Duration.ofSeconds(Config.MEDIUM_PAUSE);
 	static Duration polling = Duration.ofMillis(Config.POLLING_TIME);
 	WebDriver driver;
 
 	public ElementInteractionUtils(WebDriver driver) {
 		this.driver = driver;
-		this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		setWait(driver);
+	}
+
+	private static void setWait(WebDriver driver) {
+		wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Setting in a static method
 	}
 
 	/********************************************************************************************
@@ -134,8 +138,18 @@ public class ElementInteractionUtils {
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
 	public static void sendKeysUsingJS(WebElement webElement, String value) {
-		JavascriptExecutor js = null;
-		js.executeScript("$('#" + "accountNumber" + "').val('" + value + "');");
+		WebDriver driver = BaseClass.getDriver();
+		try {
+			if (driver instanceof JavascriptExecutor) {
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				js.executeScript("arguments[0].value='" + value + "';", webElement);
+			} else {
+				throw new IllegalStateException("This driver does not support JavaScript execution");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/********************************************************************************************
@@ -164,9 +178,18 @@ public class ElementInteractionUtils {
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
 	public static void searchClickByJS(WebElement webElement) {
-		JavascriptExecutor js = null;
-		// js.executeScript("argument[0].value'"+value +"';",webElement);
-		js.executeScript("var el = document.querySelector(\"" + webElement + "\").click();");
+		WebDriver driver = BaseClass.getDriver();
+		try {
+			if (driver instanceof JavascriptExecutor) {
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				js.executeScript("var el = document.querySelector(\"" + webElement + "\").click();");
+			} else {
+				throw new IllegalStateException("This driver does not support JavaScript execution");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/********************************************************************************************
@@ -1090,8 +1113,8 @@ public class ElementInteractionUtils {
 
 		return status;
 	}
-	
-	public static boolean dragAndDrop(WebElement source,WebElement target ) {
+
+	public static boolean dragAndDrop(WebElement source, WebElement target) {
 		Actions action = new Actions(BaseClass.getDriver());
 		action.dragAndDrop(source, target).perform();
 		return false;

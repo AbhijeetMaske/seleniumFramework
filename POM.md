@@ -163,54 +163,49 @@ mvn clean install
 ```
 
 ### Running Tests
-#### 1. Run TestNG Tests:
+$${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
+1. Run TestNG Tests:
+	- Use the Maven Surefire Plugin to run the TestNG test suite specified in the pom.xml: `mvn test`
 
- - Use the Maven Surefire Plugin to run the TestNG test suite specified in the pom.xml:
-
-```bash
-mvn test
-```
-
-#### 2. Parallel Execution:
-
- - The configuration in pom.xml enables parallel execution of test methods with a thread count of 4, speeding up test execution.
+2. Parallel Execution:
+	-  The configuration in pom.xml enables parallel execution of test methods with a thread count of 4, speeding up test execution.
 
 ### Customizing Configuration
 
-#### 1. Update Dependencies:
+1. Update Dependencies:
 
-To update any dependency version, modify the corresponding `<version>` tag in the `pom.xml` file and run `mvn clean install` to apply the changes.
+	- To update any dependency version, modify the corresponding `<version>` tag in the `pom.xml` file and run `mvn clean install` to apply the changes.
 
-#### 2. Modify Test Suite:
+2. Modify Test Suite:
+	
+	- To change the TestNG suite file, update the `<suiteXmlFile>` path in the Surefire Plugin configuration.
 
-To change the TestNG suite file, update the `<suiteXmlFile>` path in the Surefire Plugin configuration.
+### Utilizing Dependencies 
 
-### Utilizing Dependencies
+1. Selenium Java:
+	+ Use Selenium WebDriver for browser automation in your test scripts.
+
+2. TestNG:
+	+ Organize and run your tests using TestNG's annotations, test suites, and data providers.
+
+3. ExtentReports:
+	+ Generate detailed and visually appealing test reports with ExtentReports.
+
+4. Apache POI:
+	+ Read from and write to Excel files for managing test data.
+
+5. Log4j:
+	+ Implement logging in your test scripts for better debugging and monitoring.
+
+6. WebDriver Manager:
+	+ Automate the setup of WebDriver binaries, ensuring compatibility with browser versions.
+
+7. RestAssured:
+	+ Perform API testing by sending HTTP requests and validating responses.
+
+8. Javax Mail:
+	+ Send email notifications about test execution results.
  
-#### 1. Selenium Java:
- - Use Selenium WebDriver for browser automation in your test scripts.
-
-#### 2. TestNG:
- - Organize and run your tests using TestNG's annotations, test suites, and data providers.
-
-#### 3. ExtentReports:
- - Generate detailed and visually appealing test reports with ExtentReports.
-
-#### 4. Apache POI:
- - Read from and write to Excel files for managing test data.
-
-#### 5. Log4j:
- - Implement logging in your test scripts for better debugging and monitoring.
-
-#### 6. WebDriver Manager:
- - Automate the setup of WebDriver binaries, ensuring compatibility with browser versions.
-
-#### 7. RestAssured:
- - Perform API testing by sending HTTP requests and validating responses.
-
-#### 8. Javax Mail:
- - Send email notifications about test execution results.
-
 ---
 
 This pom.xml file is a powerful configuration that supports comprehensive test automation capabilities. By following the instructions and understanding the use of each dependency, you can efficiently set up, run, and maintain your Selenium-based test automation framework.
