@@ -135,7 +135,7 @@ public class BaseClass {
 	public void tearDown(Method method, ITestResult result) {
 		logger.info("Tearing down test method: " + method.getName());
 		if (result.getStatus() == ITestResult.FAILURE) {
-            String screenshotPath = ScreenshotUtils.captureScreenShot(getDriver(), method.getName());
+            String screenshotPath = ScreenshotUtils.captureScreenShot(method.getName());
             logger.error("Test failed. Screenshot saved at: " + screenshotPath);
         }
 		

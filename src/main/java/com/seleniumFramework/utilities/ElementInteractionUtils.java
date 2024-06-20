@@ -24,10 +24,10 @@ import com.seleniumFramework.common.Config;
 public class ElementInteractionUtils {
 
 	private static final Logger logger = LogManager.getLogger(ElementInteractionUtils.class);
-	private WebDriver driver;
-	private static WebDriverWait wait;
+	static WebDriverWait wait;
 	static Duration timeout = Duration.ofSeconds(Config.MEDIUM_PAUSE);
 	static Duration polling = Duration.ofMillis(Config.POLLING_TIME);
+	WebDriver driver;
 
 	public ElementInteractionUtils(WebDriver driver) {
 		this.driver = driver;
@@ -84,9 +84,9 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
+	@SuppressWarnings("null")
 	public static boolean clickUsingJS(WebElement webElement) {
 		boolean status = false;
-		WebDriver driver = BaseClass.getDriver();
 		JavascriptExecutor js = null;
 
 		try {

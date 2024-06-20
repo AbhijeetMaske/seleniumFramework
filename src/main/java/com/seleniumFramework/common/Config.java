@@ -113,7 +113,7 @@ public class Config {
 	//Global Variable
 	public static  String emailaddr = "";
 	public static  double subtotal = 0.0;
-	public static List<String> Products = new ArrayList();
+	public static List<String> Products = new ArrayList<String>();
 		
 	
 }

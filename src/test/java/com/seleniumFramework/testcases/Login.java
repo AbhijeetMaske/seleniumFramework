@@ -2,7 +2,6 @@ package com.seleniumFramework.testcases;
 
 import java.lang.reflect.Method;
 
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,12 +11,9 @@ import com.seleniumFramework.common.BaseClass;
 import com.seleniumFramework.pageobject.LoginPage;
 import com.seleniumFramework.utilities.ElementInteractionUtils;
 
-import groovyjarjarantlr4.v4.runtime.tree.xpath.XPath;
-
 public class Login extends BaseClass{
 	private LoginPage loginPage;
     public ElementInteractionUtils elementUtils;
-    private WebDriver driver;
     
     @FindBy(xpath = "//*[@id=\"identifierId\"]")
 	WebElement emailID;

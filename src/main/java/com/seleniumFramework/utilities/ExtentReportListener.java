@@ -80,7 +80,7 @@ public class ExtentReportListener implements ITestListener {
             try {
             	// Ensure the browser is initialized before taking a screenshot
                 if (BaseClass.getDriver() != null) {
-                	screenshotPath = ScreenshotUtils.captureScreenShot(BaseClass.getDriver(), methodName);
+                	screenshotPath = ScreenshotUtils.captureScreenShot(methodName);
                     extentTest.log(Status.FAIL, "Test failed: " + methodName);
                     extentTest.log(Status.FAIL, result.getThrowable(),
                             MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
