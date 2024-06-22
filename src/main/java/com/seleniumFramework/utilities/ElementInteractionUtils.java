@@ -21,44 +21,24 @@ import com.seleniumFramework.common.Config;
 /**
  * Utility class to interact with web elements in Selenium WebDriver.
  */
+
 public class ElementInteractionUtils {
 
 	private static final Logger logger = LogManager.getLogger(ElementInteractionUtils.class);
 	private static WebDriverWait wait;
 	static Duration timeout = Duration.ofSeconds(Config.MEDIUM_PAUSE);
 	static Duration polling = Duration.ofMillis(Config.POLLING_TIME);
-	WebDriver driver;
+	static WebDriver driver = BaseClass.getDriver();;
+	static private Actions action;
 
 	public ElementInteractionUtils(WebDriver driver) {
-		this.driver = driver;
+		ElementInteractionUtils.driver = driver;
 		setWait(driver);
+		ElementInteractionUtils.action = new Actions(driver);
 	}
 
 	private static void setWait(WebDriver driver) {
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Setting in a static method
-	}
-
-	/********************************************************************************************
-	 * wait for web element and clears text in it
-	 * 
-	 * @param webElement {@link WebElement} -webElement to click
-	 * 
-	 * @return status {@link boolean} - true/false
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean clear(WebElement webElement) {
-		boolean status = false;
-		try {
-			waitForElementToBeVisible(webElement);
-			webElement.clear();
-			status = true;
-			logger.info("Successfully cleared text in webElement: " + webElement.toString());
-		} catch (Exception e) {
-			logger.error("Unable to clear text in webElement: " + webElement.toString(), e);
-		}
-
-		return status;
 	}
 
 	/********************************************************************************************
@@ -88,11 +68,9 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	@SuppressWarnings("null")
 	public static boolean clickUsingJS(WebElement webElement) {
 		boolean status = false;
-		JavascriptExecutor js = null;
-
+		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
 			waitForElementToBeVisible(webElement);
 			js.executeScript("arguments[0].click();", webElement);
@@ -115,13 +93,11 @@ public class ElementInteractionUtils {
 	 ********************************************************************************************/
 	public static boolean sendKeys(WebElement webElement, String text) {
 		boolean status = false;
-
 		try {
 			waitForElementToBeVisible(webElement);
 			webElement.clear();
 			webElement.sendKeys(text);
 			status = true;
-
 		} catch (Exception e) {
 			logger.error("Unable to set text in webElement: " + webElement.toString());
 			System.out.println(e);
@@ -138,7 +114,6 @@ public class ElementInteractionUtils {
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
 	public static void sendKeysUsingJS(WebElement webElement, String value) {
-		WebDriver driver = BaseClass.getDriver();
 		try {
 			if (driver instanceof JavascriptExecutor) {
 				JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -147,9 +122,30 @@ public class ElementInteractionUtils {
 				throw new IllegalStateException("This driver does not support JavaScript execution");
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/********************************************************************************************
+	 * wait for web element and clears text in it
+	 * 
+	 * @param webElement {@link WebElement} -webElement to click
+	 * 
+	 * @return status {@link boolean} - true/false
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean clear(WebElement webElement) {
+		boolean status = false;
+		try {
+			waitForElementToBeVisible(webElement);
+			webElement.clear();
+			status = true;
+			logger.info("Successfully cleared text in webElement: " + webElement.toString());
+		} catch (Exception e) {
+			logger.error("Unable to clear text in webElement: " + webElement.toString(), e);
+		}
+		return status;
 	}
 
 	/********************************************************************************************
@@ -178,7 +174,6 @@ public class ElementInteractionUtils {
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
 	public static void searchClickByJS(WebElement webElement) {
-		WebDriver driver = BaseClass.getDriver();
 		try {
 			if (driver instanceof JavascriptExecutor) {
 				JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -187,7 +182,6 @@ public class ElementInteractionUtils {
 				throw new IllegalStateException("This driver does not support JavaScript execution");
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -256,7 +250,6 @@ public class ElementInteractionUtils {
 	 ********************************************************************************************/
 	public static boolean selectByIndex(WebElement webElement, int index) {
 		boolean status = false;
-
 		try {
 			waitForElementToBeVisible(webElement);
 			Select listBox = new Select(webElement);
@@ -288,7 +281,7 @@ public class ElementInteractionUtils {
 		FluentWait<WebDriver> fluentWait;
 		try {
 			// Initialize FluentWait with WebDriver instance and timeout duration
-			fluentWait = new FluentWait<>(BaseClass.getDriver()).withTimeout(timeout).pollingEvery(polling)
+			fluentWait = new FluentWait<>(driver).withTimeout(timeout).pollingEvery(polling)
 					.ignoring(NoSuchElementException.class);
 			fluentWait.until(ExpectedConditions.elementToBeClickable(webElement));
 			status = true;
@@ -303,7 +296,7 @@ public class ElementInteractionUtils {
 		boolean status = false;
 		WebDriverWait wait;
 		try {
-			wait = new WebDriverWait(BaseClass.getDriver(), timeout);
+			wait = new WebDriverWait(driver, timeout);
 			wait.until(ExpectedConditions.visibilityOf(webElement));
 			status = true;
 			logger.info("Element is visible: " + webElement.toString());
@@ -328,7 +321,7 @@ public class ElementInteractionUtils {
 		boolean status = false;
 		FluentWait<WebDriver> fluentWait;
 		try {
-			fluentWait = new FluentWait<>(BaseClass.getDriver()).withTimeout(timeout).pollingEvery(polling)
+			fluentWait = new FluentWait<>(driver).withTimeout(timeout).pollingEvery(polling)
 					.ignoring(NoSuchElementException.class);
 			fluentWait.until(ExpectedConditions.invisibilityOf(webElement));
 			status = true;
@@ -352,7 +345,7 @@ public class ElementInteractionUtils {
 	public static WebElement findElement(By byelement, Duration timeout) {
 		WebElement webelement = null;
 		try {
-			FluentWait<WebDriver> fluentWait = new FluentWait<>(BaseClass.getDriver()).withTimeout(timeout)
+			FluentWait<WebDriver> fluentWait = new FluentWait<>(driver).withTimeout(timeout)
 					.ignoring(NoSuchElementException.class);
 			webelement = fluentWait.until(ExpectedConditions.presenceOfElementLocated(byelement));
 			logger.info("Element is visible: " + byelement.toString());
@@ -375,7 +368,6 @@ public class ElementInteractionUtils {
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
 	public static boolean isPresent(WebElement webElement, int timeOut) {
-
 		boolean status = false;
 		try {
 			status = webElement.isDisplayed();
@@ -398,7 +390,6 @@ public class ElementInteractionUtils {
 	 ********************************************************************************************/
 	public static boolean isEnabled(WebElement webElement) {
 		boolean status = false;
-
 		waitForElementToBeVisible(webElement);
 		try {
 			status = webElement.isEnabled();
@@ -445,7 +436,6 @@ public class ElementInteractionUtils {
 	 ********************************************************************************************/
 	public static String getAttribute(WebElement webElement, String attribute) {
 		String attributeValue = " ";
-
 		waitForElementToBeVisible(webElement);
 		try {
 			logger.info("Getting attribute '" + attribute + "' for webElement: " + webElement.toString());
@@ -470,7 +460,6 @@ public class ElementInteractionUtils {
 	 ********************************************************************************************/
 	public static boolean verifyAttributeValue(WebElement webElement, String attribute, String attributeValue) {
 		boolean status = false;
-
 		waitForElementToBeVisible(webElement);
 		try {
 			logger.info("Verifying attribute '" + attribute + "' value to be '" + attributeValue + "' for webElement: "
@@ -525,7 +514,7 @@ public class ElementInteractionUtils {
 		try {
 			logger.info("Waiting for attribute '" + attribute + "' of webElement to contain value '" + attributeValue
 					+ "': " + webElement.toString());
-			WebDriverWait wait = new WebDriverWait(BaseClass.getDriver(), timeout);
+			WebDriverWait wait = new WebDriverWait(driver, timeout);
 			wait.until(ExpectedConditions.attributeContains(webElement, attribute, attributeValue));
 			status = webElement.getAttribute(attribute).toUpperCase().contains(attributeValue.toUpperCase());
 			status = true;
@@ -547,14 +536,12 @@ public class ElementInteractionUtils {
 	public static boolean scrollIntoView(WebElement webElement) {
 		boolean status = false;
 		WebElement webelement;
-
 		try {
-			WebDriver driver = BaseClass.getDriver();
 			logger.info("Scrolling into view: " + webElement.toString());
 			((RemoteWebDriver) driver).executeScript("argument[0].scrollIntoView();", webElement);
 			webelement = driver.findElement(By.xpath("(//*[contains(text(),'')])[1]"));
 			click(webelement);
-			Actions action = new Actions(driver);
+			// Actions action = new Actions(driver);
 			action.moveByOffset(8000, 8000).click().perform();
 			status = true;
 		} catch (Exception e) {
@@ -634,7 +621,6 @@ public class ElementInteractionUtils {
 	public static boolean getElementByText(String text) {
 		boolean status = false;
 		WebElement getElementByText;
-		WebDriver driver = BaseClass.getDriver();
 		try {
 			getElementByText = driver.findElement(By.xpath("(//*[contains(text(),\"" + text + "\")])[]1]"));
 			ElementInteractionUtils.scrollIntoView(getElementByText);
@@ -719,180 +705,13 @@ public class ElementInteractionUtils {
 	public static void highlightElement(WebElement element) {
 		for (int i = 0; i < 3; i++) {
 			JavascriptExecutor js;
-			js = (JavascriptExecutor) BaseClass.getDriver();
+			js = (JavascriptExecutor) driver;
 			js.executeScript("arguments[0].setAttribute('style',arguments[1]);", element,
 					"color: Orange; border: 2px solid red;");
 			pause(200);
 			js.executeScript("arguments[0].setAttribute('style',arguments[1]);", element, "");
 		}
 	}
-
-	/********************************************************************************************
-	 * Switches to a different window based on the index provided.
-	 * 
-	 * @param value The index of the window to switch to.
-	 * @return true if the window was successfully switched, false otherwise.
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-
-	public static boolean switchWindow(int value) {
-		boolean status = false;
-		Set<String> windowHandles;
-		WebDriver driver = BaseClass.getDriver();
-		windowHandles = driver.getWindowHandles();
-
-		List<String> windowHandlesList = new ArrayList<>(windowHandles);
-		int numWindows = windowHandlesList.size();
-
-		if (numWindows > 1 && value >= 0 && value < numWindows) {
-			driver.switchTo().window(windowHandlesList.get(value));
-			status = true;
-		}
-
-		return status;
-	}
-
-	/********************************************************************************************
-	 * Closes the current window and switches to the first window in the window
-	 * handles list.
-	 * 
-	 * @param value Unused parameter. Keeping for compatibility with other methods.
-	 * @return true if the window was successfully closed and switched, false
-	 *         otherwise.
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-
-	public static boolean closeWindow(int Value) {
-		boolean status = false;
-		WebDriver driver = BaseClass.getDriver();
-
-		Set<String> windowHandles = driver.getWindowHandles();
-		List<String> windowHandlesList = new ArrayList<>(windowHandles);
-
-		if (windowHandlesList.size() > 1) {
-			driver.close();
-			driver.switchTo().window(windowHandlesList.get(0));
-			status = true;
-		}
-		return status;
-	}
-
-	/********************************************************************************************
-	 * Switch to frame
-	 * 
-	 * @param indexOrNameOrId {@link String} - Id, Name or Index of the frames
-	 * @return status {@link boolean} - true/false
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean switchToFrame(String indexOrNameOrId) {
-		boolean status = false;
-		try {
-			logger.info("Switching to frame: " + indexOrNameOrId);
-			WebDriver driver = BaseClass.getDriver();
-			((RemoteWebDriver) driver).switchTo().frame(indexOrNameOrId);
-			status = true;
-		} catch (Exception e) {
-			logger.error("Unable to switch to frame: " + indexOrNameOrId, e);
-		}
-		return status;
-	}
-
-	/********************************************************************************************
-	 * Switch to default frame
-	 * 
-	 * @param idNameIndex {@link String} - Id, Name or Index of the frames
-	 * @return status {@link boolean} - true/false
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean switchToDefaultContent() {
-		boolean status = false;
-		try {
-			logger.info("Switching to default content");
-			WebDriver driver = BaseClass.getDriver();
-			((RemoteWebDriver) driver).switchTo().defaultContent();
-			status = true;
-		} catch (Exception e) {
-			logger.error("Unable to switch to default content", e);
-		}
-		return status;
-	}
-
-	/********************************************************************************************
-	 * Navigates back to the previous page.
-	 * 
-	 * @return true if the navigation is successful, false otherwise.
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean navigateBack() {
-		boolean status = false;
-		try {
-			WebDriver driver = BaseClass.getDriver();
-			driver.navigate().back();
-			status = true;
-		} catch (Exception e) {
-			logger.error("Navigation back failed: ", e);
-		}
-		return status;
-	}
-
-	/********************************************************************************************
-	 * Refreshes the current page.
-	 * 
-	 * @return true if the page refresh was successful, false otherwise.
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static boolean refresh() {
-		boolean status = false;
-		WebDriver driver = null;
-		try {
-			driver = BaseClass.getDriver();
-			driver.navigate().refresh();
-			Actions actionObject = new Actions(driver);
-			actionObject.keyDown(Keys.CONTROL).sendKeys(Keys.F5).keyUp(Keys.CONTROL).build().perform();
-			status = true;
-		} catch (Exception e) {
-			logger.error("Failed to refresh the page: " + e.getMessage());
-		}
-		return status;
-	}
-
-//	public static boolean clickEleText(Map<String, String> testData) {
-//	    boolean status = false;
-//	    WebDriver driver = BaseClass.getDriver();
-//	    String[] verText = testData.get("ClickElement").split("\\|");
-//	    try {
-//	        System.out.println(index);
-//	        WebElement eleGettxt = driver.findElement(By.xpath("(//*[contains(text(),\"" + verText[index] + "\")])[1]"));
-//	        System.out.println();
-//	        ElementInteractionUtils.scrollIntoView(eleGettxt);
-//	        if (ElementInteractionUtils.isPresent(eleGettxt, 60) || ElementInteractionUtils.waitForElementToBeVisible(eleGettxt)) {
-//	            highlightElement(eleGettxt);
-//	            System.out.println("Element is present and the text is " + eleGettxt.getText());
-//	            if (click(eleGettxt)) {
-//	                System.out.println("test3");
-//	                //status = true;
-//	            }
-//	        } else {
-//	            System.out.println("Element is not present:" + eleGettxt);
-//	        }
-//	    } catch (Exception e) {
-//	        logger.error("Element not found: ", e);
-//	    }
-//	    index++;
-//	    return status;
-//	}
 
 	/********************************************************************************************
 	 * Verifies the presence of page text based on the provided test data.
@@ -932,22 +751,6 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	public static void keyDown(WebElement webElement, String inputString, String string) {
-		try {
-			Actions action = new Actions(BaseClass.getDriver());
-
-			action.keyDown(webElement, "keys" + "." + "string");
-			System.out.println();
-			action.sendKeys(webElement, inputString);
-			action.keyUp(string).perform();
-			logger.info("Performed keyDown action with key: " + string + ", and input string: " + inputString);
-		} catch (Exception e) {
-			logger.error("Unable to perform keyDown action with key: " + string + ", and input string: " + inputString,
-					e);
-		}
-
-	}
-
 	/********************************************************************************************
 	 * Moves the mouse cursor to the specified WebElement.
 	 * 
@@ -962,7 +765,7 @@ public class ElementInteractionUtils {
 		try {
 			if (webElement.isDisplayed()) {
 				logger.info("hovering over element: " + webElement);
-				Actions action = new Actions(BaseClass.getDriver());
+				Actions action = new Actions(driver);
 				highlightElement(webElement);
 				action.moveToElement(webElement).build().perform();
 				status = true;
@@ -973,18 +776,21 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Double clicks on the specified WebElement.
-	 *
+	 * 
 	 * @param webElement The WebElement to double click on.
 	 * @return true if the action was successful, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	 ********************************************************************************************/
 	public static boolean doubleClick(WebElement webElement) {
 		boolean status = false;
 		try {
 			if (webElement.isDisplayed()) {
 				logger.info("Double clicking on element: " + webElement);
-				Actions action = new Actions(BaseClass.getDriver());
+				Actions action = new Actions(driver);
 				highlightElement(webElement);
 				action.doubleClick(webElement).perform();
 				status = true;
@@ -995,18 +801,20 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Right clicks on the specified WebElement.
-	 *
+	 * 
 	 * @param webElement The WebElement to right click on.
 	 * @return true if the action was successful, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	 ********************************************************************************************/
 	public static boolean rightClick(WebElement webElement) {
 		boolean status = false;
 		try {
 			if (webElement.isDisplayed()) {
 				logger.info("Right clicking on element: " + webElement);
-				Actions action = new Actions(BaseClass.getDriver());
 				highlightElement(webElement);
 				action.contextClick(webElement).perform();
 				status = true;
@@ -1017,12 +825,15 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Selects the webelement if it is not already selected and clicks on it.
-	 *
+	 * 
 	 * @param WebElement to select and click.
 	 * @return true if the action was selected and clicked, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	 ********************************************************************************************/
 	public static boolean selectOptionAndClick(WebElement webElement) {
 		boolean status = false;
 		try {
@@ -1039,12 +850,15 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Clicks the webelement if it is displayed.
-	 *
+	 * 
 	 * @param webElement to click.
 	 * @return true if the element was displayed and clicked, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	 ********************************************************************************************/
 	public static boolean isDisplayedAndClick(WebElement webElement) {
 		boolean status = false;
 		try {
@@ -1061,12 +875,16 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
-	/**
+	/********************************************************************************************
 	 * Clicks the webelement if it is enabled.
-	 *
+	 * 
 	 * @param WebElement to click.
 	 * @return true if the element was enabled and clicked, false otherwise.
-	 */
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	 ********************************************************************************************/
+
 	public static boolean isEnabledAndClick(WebElement webElement) {
 		boolean status = false;
 		try {
@@ -1083,11 +901,20 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
+	/********************************************************************************************
+	 * Clicks the webelement of table
+	 * 
+	 * @param WebElement to click.
+	 * @return true if the element was enabled and clicked, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	 ********************************************************************************************/
+
 	public static boolean webTables(WebElement webElement) {
 		boolean status = false;
 		String sRow = "1";
 		String sCol = "2";
-		WebDriver driver = BaseClass.getDriver();
 		// Here we are locating the xpath by passing variables in the xpath
 		String sCellValue = driver
 				.findElement(By.xpath(".//*[@id='content']/table/tbody/tr[" + sRow + "]/td[" + sCol + "]")).getText();
@@ -1114,9 +941,396 @@ public class ElementInteractionUtils {
 		return status;
 	}
 
+	/********************************************************************************************
+	 * Drag and drop the element
+	 * 
+	 * @param source WebElement to move.
+	 * @param target WebElement where to move.
+	 * @return true if the element was enabled and clicked, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	
 	public static boolean dragAndDrop(WebElement source, WebElement target) {
-		Actions action = new Actions(BaseClass.getDriver());
-		action.dragAndDrop(source, target).perform();
+		boolean status = false;
+		try {
+			action.dragAndDrop(source, target).perform();
+			status = true;
+			logger.info("webelement moved from source" + source+" to target "+target);
+		}
+		catch (Exception e) {
+			logger.error("Problem in dragAndDroping element " + e.getMessage());
+		}
 		return false;
+	}
+
+	public static void keyDown(WebElement webElement, String inputString, String string) {
+		try {
+			action.keyDown(webElement, "keys" + "." + "string");
+			System.out.println();
+			action.sendKeys(webElement, inputString);
+			action.keyUp(string).perform();
+			logger.info("Performed keyDown action with key: " + string + ", and input string: " + inputString);
+		} catch (Exception e) {
+			logger.error("Unable to perform keyDown action with key: " + string + ", and input string: " + inputString,
+					e);
+		}
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing a single key.
+	 * 
+	 * @param key the key to press
+	 * @return true if the key is pressed, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public static boolean pressKey(Keys key) {
+		boolean status = false;
+		try {
+			action.sendKeys(key).perform();
+			logger.info("Pressed key: " + key.name());
+		} catch (Exception e) {
+			logger.error("Failed to press key: " + key.name(), e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing and releasing multiple keys.
+	 * 
+	 * @param keys the keys to press and release
+	 * @return true if the key is pressed, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public static boolean pressKeys(Keys... keys) {
+		boolean status = false;
+		try {
+			for (Keys key : keys) {
+				action.keyDown(key);
+			}
+			for (Keys key : keys) {
+				action.keyUp(key);
+			}
+			action.perform();
+			logger.info("Pressed keys: " + keys);
+		} catch (Exception e) {
+			logger.error("Failed to press keys: " + keys, e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing a key on a specific element.
+	 * 
+	 * @param element the WebElement to send the key to
+	 * @param key     the key to press
+	 * @return true if the key is pressed, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public static boolean pressKeyOnElement(WebElement element, Keys key) {
+		boolean status = false;
+		try {
+			action.sendKeys(element, key).perform();
+			logger.info("Pressed key: " + key.name() + " on element: " + element.toString());
+		} catch (Exception e) {
+			logger.error("Failed to press key: " + key.name() + " on element: " + element.toString(), e);
+		}
+		return status;
+	}
+	
+	/********************************************************************************************
+	 * Simulates typing text into a specific element.
+	 * 
+	 * @param element the WebElement to send the text to
+	 * @param text    the text to type
+	 * @return true if the key is pressed, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public static boolean typeText(WebElement element, String text) {
+		boolean status = false;
+		try {
+			action.sendKeys(element, text).perform();
+			logger.info("Typed text: " + text + " on element: " + element.toString());
+		} catch (Exception e) {
+			logger.error("Failed to type text: " + text + " on element: " + element.toString(), e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing Enter key.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void pressEnter() {
+		pressKey(Keys.ENTER);
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing Tab key.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void pressTab() {
+		pressKey(Keys.TAB);
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing Escape key.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void pressEscape() {
+		pressKey(Keys.ESCAPE);
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing Backspace key.
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void pressBackspace() {
+		pressKey(Keys.BACK_SPACE);
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing the combination of Ctrl + key.
+	 * 
+	 * @param key the key
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	
+	public void pressCtrlAndKey(Keys key) {
+		pressKeys(Keys.CONTROL, key);
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing the combination of Shift + key.
+	 * 
+	 * @param key the key to press with Shift
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void pressShiftAndKey(Keys key) {
+		pressKeys(Keys.SHIFT, key);
+	}
+
+	/********************************************************************************************
+	 * Simulates pressing the combination of Alt + key.
+	 * 
+	 * @param key the key to press with Alt
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void pressAltAndKey(Keys key) {
+		pressKeys(Keys.ALT, key);
+	}
+
+	/********************************************************************************************
+	 * Simulates releasing a key.
+	 * 
+	 * @param key the key to release
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public void releaseKey(Keys key) {
+		try {
+			action.keyUp(key).perform();
+			logger.info("Released key: " + key.name());
+		} catch (Exception e) {
+			logger.error("Failed to release key: " + key.name(), e);
+		}
+	}
+
+	/********************************************************************************************
+	 * Simulates copying text from one element and pasting it into another.
+	 * 
+	 * @param sourceElement      the WebElement to copy text from
+	 * @param destinationElement the WebElement to paste text into
+	 * 
+	 * @author Abhijeet Maske Created June 22,2024
+	 * @version 1.0 June 22,2024
+	********************************************************************************************/
+	public static boolean copyAndPaste(WebElement sourceElement, WebElement destinationElement) {
+		boolean status = false;
+		try {
+			action.click(sourceElement).keyDown(Keys.CONTROL)
+			.sendKeys("a")
+			.sendKeys("c")
+			.keyUp(Keys.CONTROL)
+			.click(destinationElement)
+			.keyDown(Keys.CONTROL)
+			.sendKeys("v")
+			.keyUp(Keys.CONTROL)
+			.perform();
+			logger.info("Copied text from element: " + sourceElement.toString() + " and pasted into element: "
+					+ destinationElement.toString());
+		}
+		catch (Exception e) {
+			logger.error("Unable to Copy text from element: " + sourceElement.toString() + " and pasted into element: "
+					+ destinationElement.toString());
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Switches to a different window based on the index provided.
+	 * 
+	 * @param value The index of the window to switch to.
+	 * @return true if the window was successfully switched, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+
+	public static boolean switchWindow(int value) {
+		boolean status = false;
+		Set<String> windowHandles;
+		windowHandles = driver.getWindowHandles();
+		List<String> windowHandlesList = new ArrayList<>(windowHandles);
+		int numWindows = windowHandlesList.size();
+		if (numWindows > 1 && value >= 0 && value < numWindows) {
+			driver.switchTo().window(windowHandlesList.get(value));
+			status = true;
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Closes the current window and switches to the first window in the window
+	 * handles list.
+	 * 
+	 * @param value Unused parameter. Keeping for compatibility with other methods.
+	 * @return true if the window was successfully closed and switched, false
+	 *         otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+
+	public static boolean closeWindow(int Value) {
+		boolean status = false;
+		Set<String> windowHandles = driver.getWindowHandles();
+		List<String> windowHandlesList = new ArrayList<>(windowHandles);
+		if (windowHandlesList.size() > 1) {
+			driver.close();
+			driver.switchTo().window(windowHandlesList.get(0));
+			status = true;
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Switch to frame
+	 * 
+	 * @param indexOrNameOrId {@link String} - Id, Name or Index of the frames
+	 * @return status {@link boolean} - true/false
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean switchToFrame(String indexOrNameOrId) {
+		boolean status = false;
+		try {
+			logger.info("Switching to frame: " + indexOrNameOrId);
+			((RemoteWebDriver) driver).switchTo().frame(indexOrNameOrId);
+			status = true;
+		} catch (Exception e) {
+			logger.error("Unable to switch to frame: " + indexOrNameOrId, e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Switch to default frame
+	 * 
+	 * @param idNameIndex {@link String} - Id, Name or Index of the frames
+	 * @return status {@link boolean} - true/false
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean switchToDefaultContent() {
+		boolean status = false;
+		try {
+			logger.info("Switching to default content");
+			((RemoteWebDriver) driver).switchTo().defaultContent();
+			status = true;
+		} catch (Exception e) {
+			logger.error("Unable to switch to default content", e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Navigates back to the previous page.
+	 * 
+	 * @return true if the navigation is successful, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean navigateBack() {
+		boolean status = false;
+		try {
+			driver.navigate().back();
+			status = true;
+		} catch (Exception e) {
+			logger.error("Navigation back failed: ", e);
+		}
+		return status;
+	}
+
+	/**
+	 * Navigates forward to the next page.
+	 */
+	public static boolean navigateForward() {
+		boolean status = false;
+		try {
+			driver.navigate().forward();
+			logger.info("Navigated forward to the next page.");
+			status = true;
+		} catch (Exception e) {
+			logger.error("Failed to navigate forward to the next page.", e);
+		}
+		return status;
+	}
+
+	/********************************************************************************************
+	 * Refreshes the current page.
+	 * 
+	 * @return true if the page refresh was successful, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created June 27,2023
+	 * @version 1.0 June 27,2023
+	 ********************************************************************************************/
+	public static boolean refresh() {
+		boolean status = false;
+		try {
+			driver.navigate().refresh();
+			action.keyDown(Keys.CONTROL).sendKeys(Keys.F5).keyUp(Keys.CONTROL).build().perform();
+			status = true;
+		} catch (Exception e) {
+			logger.error("Failed to refresh the page: " + e.getMessage());
+		}
+		return status;
 	}
 }
