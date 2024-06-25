@@ -28,13 +28,19 @@ public class ElementInteractionUtils {
 	private static WebDriverWait wait;
 	static Duration timeout = Duration.ofSeconds(Config.MEDIUM_PAUSE);
 	static Duration polling = Duration.ofMillis(Config.POLLING_TIME);
-	static WebDriver driver = BaseClass.getDriver();;
+	public  static WebDriver driver;
 	static private Actions action;
 
-	public ElementInteractionUtils(WebDriver driver) {
-		ElementInteractionUtils.driver = driver;
-		setWait(driver);
-		ElementInteractionUtils.action = new Actions(driver);
+	public ElementInteractionUtils(WebDriver webDriver) {
+
+		driver = BaseClass.getDriver();
+	    if (driver == null) {
+	        logger.error("WebDriver is null in ElementInteractionUtils constructor.");
+	    } else {
+	        logger.info("WebDriver initialized in ElementInteractionUtils: " + driver);
+	    }
+	    setWait(driver);
+	    ElementInteractionUtils.action = new Actions(driver);
 	}
 
 	private static void setWait(WebDriver driver) {
@@ -49,14 +55,17 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 17,2024
 	 ********************************************************************************************/
-	public static void click(WebElement element) {
+	public static boolean click(WebElement element) {
+		boolean status = false;
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(element));
 			element.click();
 			logger.info("Clicked on element: " + element);
+			status = true;
 		} catch (NoSuchElementException | TimeoutException e) {
 			logger.error("Unable to click on element: " + describeElement(element), e);
 		}
+		return status;
 	}
 
 	/********************************************************************************************
@@ -962,7 +971,7 @@ public class ElementInteractionUtils {
 		catch (Exception e) {
 			logger.error("Problem in dragAndDroping element " + e.getMessage());
 		}
-		return false;
+		return status;
 	}
 
 	public static void keyDown(WebElement webElement, String inputString, String string) {

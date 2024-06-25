@@ -14,39 +14,37 @@ import com.seleniumFramework.utilities.ElementInteractionUtils;
 import com.seleniumFramework.utilities.ExtentReportListener;
 
 public class LoginPage {
-	protected ElementInteractionUtils elementInteractionUtils;
+	
 	protected WebDriver driver;
 	protected WebDriverWait wait;
-
-	// identify WebElements
-	@FindBy(xpath = "/html/body/header/div/div/div/a[2]")
-	WebElement signUpButton;
-
+	
 	// constructor
-	public LoginPage(WebDriver driver) {
-		if (driver == null) {
-            throw new IllegalArgumentException("WebDriver instance cannot be null.");
-        }
-		
-		this.driver = driver;
+	public LoginPage(WebDriver webDriver) {
+		this.driver = BaseClass.getDriver();
 		PageFactory.initElements(driver, this);
-		elementInteractionUtils = new ElementInteractionUtils(driver);
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	}
+	
+	// identify WebElements
+		@FindBy(xpath="/html/body/header/div/div/div/a[2]")
+		WebElement signUpButton;
+		
+		@FindBy(xpath="//span[text()='Organization Details']")
+		WebElement OrganizationDetails;
 
+	
+	ElementInteractionUtils elementInteractionUtils = new ElementInteractionUtils(driver);
 	// identify Action on WebElement
 	public String getHompageUrl() {
 
-		String currentURL = BaseClass.getDriver().getCurrentUrl();
+		String currentURL = driver.getCurrentUrl();
+		System.out.println(currentURL);
 		ExtentReportListener.getExtent().log(Status.PASS, "URL fetched " + currentURL);
 		return currentURL;
 	}
 
-	public boolean signup() {
+	public boolean signup() throws InterruptedException {
 		// Ensure signUpButton is properly initialized
-        if (signUpButton == null) {
-            throw new NullPointerException("signUpButton is not initialized.");
-        }
 		boolean status = false;
 		try {
             wait.until(ExpectedConditions.elementToBeClickable(signUpButton));

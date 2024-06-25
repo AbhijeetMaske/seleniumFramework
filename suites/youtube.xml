@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Selenium Test Suite" parallel="methods" thread-count="4">
+	
+	<!-- Listeners for the suite -->
+    <listeners>
+        <listener class-name="com.seleniumFramework.utilities.ExtentReportListener"/>
+    </listeners>
+
+     <!-- Parameters for the suite -->
+    <parameter name="baseUrl" value="https://www.google.com/"/>
+    <parameter name="browser" value="chrome"/>
+    <parameter name="headless" value="false"/>
+    <parameter name="implicitWait" value="10"/>
+
+    <!-- Test for login functionality -->
+    <test name="Login Test">
+        <!--<parameter name="username" value="testuser"/>
+        <parameter name="password" value="password123"/>-->
+        <classes>
+            <class name="com.seleniumFramework.testcases.youtube"/>
+        </classes>
+    </test>
+    
+    <!-- Additional tests can be added similarly -->
+    <!-- 
+    <test name="Another Test">
+        <parameter name="param1" value="value1"/>
+        <classes>
+            <class name="com.seleniumFramework.testcases.AnotherTestClass"/>
+        </classes>
+    </test>
+    -->
+</suite>

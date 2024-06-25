@@ -1,152 +1,135 @@
 package com.seleniumFramework.common;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.testng.ITestResult;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.annotations.*;
 
 import com.seleniumFramework.utilities.BrowserUtils;
-import com.seleniumFramework.utilities.ScreenshotUtils;
+import com.seleniumFramework.utilities.ReadConfig;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-
-/**
- * Base class for setting up and tearing down WebDriver instances for tests.
- */
 public class BaseClass {
 
-	protected String url;
-	protected String browser;
-	protected String browserVersion;
-	protected static WebDriver driver;
-	protected static Logger logger;
-	private static ThreadLocal<WebDriver> driverObject = new ThreadLocal<>();
-	
-	
-	public static void initializeLogs() {
-        File logDir = new File("logs");
-        if (!logDir.exists()) {
-            logDir.mkdir();
-        }
-    }
-	
-	static {
-        initializeLogs(); // Ensure logs directory exists
-    }
+	ReadConfig readConfig = new ReadConfig();
 
-	/********************************************************************************************
-	 * Gets the current WebDriver instance for the thread.
-	 * 
-	 * @return the WebDriver instance
-	 * 
-	 *@author Abhijeet Maske Created June 27,2023
-	 *@version 1.0 June 27,2023
-	 ********************************************************************************************/
+	protected String url;
+	String browser;
+	public static WebDriver driver;
+	protected static Logger logger;
+	protected String browserVersion;
+	public static ThreadLocal<WebDriver> driverObject = new ThreadLocal<WebDriver>();
+
 	public static WebDriver getDriver() {
 		return driverObject.get();
+
 	}
 
-	/********************************************************************************************
-	 * Sets up the test suite by configuring the base URL and browser.
-	 * @param baseUrl the base URL for the tests
-	 * param browser the browser to be used for the tests
-	 * 
-	 *@author Abhijeet Maske Created June 27,2023
-	 *@version 1.0 June 27,2023
-	 ********************************************************************************************/
 	@Parameters({ "baseUrl", "browser" })
 	@BeforeSuite
-	public void setupSuite(String baseUrl, String browser) {
-		this.url = baseUrl;
-		this.browser = browser;
+	public void setupSuite(@Optional String baseUrl, @Optional String browser) {
+		logger = LogManager.getLogger(BaseClass.class);
 
-		// Get the browser version
-		switch (browser.toLowerCase()) {
-		case "chrome":
-			browserVersion = BrowserUtils.getChromeBrowserVersion();
-			break;
-		case "firefox":
-			browserVersion = BrowserUtils.getFirefoxBrowserVersion();
-			break;
-		case "edge":
-			browserVersion = BrowserUtils.getEdgeBrowserVersion();
-			break;
-		default:
-			 String errorMessage = "Unsupported browser: " + browser;
-             logger.error(errorMessage);
+		this.url = baseUrl != null ? baseUrl : readConfig.getBaseUrl();
+		this.browser = browser != null ? browser : readConfig.getBrowser();
+
+		if (this.url == null || this.browser == null) {
+			String errorMessage = "Base URL or browser not provided in XML or config file.";
+			logger.error(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
-			
 		}
-		System.out.println("Using " + browser + " version: " + browserVersion);
+		System.out.println("base URL: " + baseUrl);
+
+		try {
+			switch (browser.toLowerCase()) {
+			case "chrome":
+
+				ChromeOptions option = new ChromeOptions();
+				option.setBrowserVersion("126");
+				driver = new ChromeDriver(option);
+				break;
+			case "edge":
+				EdgeOptions edgeOptions = new EdgeOptions();
+				edgeOptions.setBrowserVersion("126");
+				driver = new EdgeDriver(edgeOptions);
+				break;
+			case "firefox":
+				FirefoxOptions firefoxOptions = new FirefoxOptions();
+				firefoxOptions.setBrowserVersion("108");
+				driver = new FirefoxDriver(firefoxOptions);
+				break;
+			default:
+				throw new IllegalArgumentException("Unsupported browser: " + this.browser);
+			}
+			driverObject.set(driver);
+			getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+			logger.info("Initialized WebDriver before suite with browser: " + this.browser);
+
+		} catch (Exception e) {
+			logger.error("Error during initializing WebDriver before suite: " + e.getMessage(), e);
+			throw e;
+		}
 	}
 
-	/********************************************************************************************
-	 * Sets up the WebDriver instance before each test method.
-	 * @param method the test method
-	 * 
-	 *@author Abhijeet Maske Created June 27,2023
-	 *@version 1.0 June 27,2023
-	 ********************************************************************************************/
-	
+	@BeforeMethod
 	public void setup(Method method) {
 		logger = LogManager.getLogger(method.getDeclaringClass());
-		logger.info("Starting test method: " + method.getName());
+		logger.info("@Before Method: " + method.getName());
 
-		switch (browser.toLowerCase()) {
-        case "chrome":
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver(BrowserUtils.configureChromeOptions());
-            break;
-        case "firefox":
-            WebDriverManager.firefoxdriver().setup();
-            driver = new FirefoxDriver(BrowserUtils.configureFirefoxOptions());
-            break;
-        case "edge":
-            WebDriverManager.edgedriver().setup();
-            driver = new EdgeDriver(BrowserUtils.configureEdgeOptions());
-            break;
-        default:
-            throw new IllegalArgumentException("Unsupported browser: " + browser);
-    }
-		driverObject.set(driver);
+		if (getDriver() == null) {
+			setupSuite(url, browser);
+		}
 
-		// Set timeouts
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
+		// Use parameters from XML if provided, otherwise fall back to config file
+//		try {
+//			switch (browser.toLowerCase()) {
+//			case "chrome":
+//				ChromeOptions option = new ChromeOptions();
+//				option.setBrowserVersion("126");
+//				driver = new ChromeDriver(option);
+//				logger.info("Initialized WebDriver in method");
+//				break;
+//			default:
+//				throw new IllegalArgumentException("Unsupported browser: " + this.browser);
+//			}
+//			driverObject.set(driver);
+//			// implicit wait of 10 second
+//			getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+//			logger.info("Initialized WebDriver for method: " + method.getName() + " with browser: " + this.browser);
+//
+//		} catch (Exception e) {
+//			logger.error("Error during WebDriver setup: " + e.getMessage(), e);
+//			throw e;
+//		}
 
-		logger.info("WebDriver setup complete for method: " + method.getName());
+		try {
+			logger.info("Initialized WebDriver for method: " + method.getName() + " with browser: " + this.browser);
+		} catch (Exception e) {
+			logger.error("Error during WebDriver setup: " + e.getMessage(), e);
+			throw e;
+		}
 	}
-	
-	/********************************************************************************************
-	 * Tears down the WebDriver instance after each test method.
-	 * @param method the test method
-	 * 
-	 *@author Abhijeet Maske Created June 27,2023
-	 *@version 1.0 June 27,2023
-	 ********************************************************************************************/	
+
 	@AfterMethod
-	public void tearDown(Method method, ITestResult result) {
-		logger.info("Tearing down test method: " + method.getName());
-		if (result.getStatus() == ITestResult.FAILURE) {
-            String screenshotPath = ScreenshotUtils.captureScreenShot(method.getName());
-            logger.error("Test failed. Screenshot saved at: " + screenshotPath);
-        }
-		
-		if (getDriver() != null) {
-			try {
+	public void tearDown(Method method) {
+		logger.info("@After Method: " + method.getName());
+		try {
+			if (getDriver() != null) {
 				getDriver().close();
 				getDriver().quit();
 				driverObject.remove();
-			} catch (Exception e) {
-				logger.error("Error while closing WebDriver: " + e.getMessage(), e);
 			}
+			logger.info("Torn down WebDriver for method: " + method.getName());
+		} catch (Exception e) {
+			logger.error("Error during WebDriver teardown: " + e.getMessage(), e);
 		}
 	}
+
 }
