@@ -38,7 +38,6 @@ public class LoginPage {
 	public String getHompageUrl() {
 
 		String currentURL = driver.getCurrentUrl();
-		System.out.println(currentURL);
 		ExtentReportListener.getExtent().log(Status.PASS, "URL fetched " + currentURL);
 		return currentURL;
 	}
@@ -50,7 +49,6 @@ public class LoginPage {
             wait.until(ExpectedConditions.elementToBeClickable(signUpButton));
             ElementInteractionUtils.highlightElement(signUpButton);
             ElementInteractionUtils.click(signUpButton);
-            System.out.println("clicked on signup button");
             status = true;
         } catch (Exception e) {
             ExtentReportListener.getExtent().log(Status.FAIL, "Signup button click failed: " + e.getMessage());

@@ -31,7 +31,7 @@ public class DateTimeUtils {
      ********************************************************************************************/
     public static String getCurrentDateTime() {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        return currentDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
+        return currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss"));
     }
 
     /********************************************************************************************

@@ -12,7 +12,6 @@ import com.seleniumFramework.utilities.ElementInteractionUtils;
 import com.seleniumFramework.utilities.ExtentReportListener;
 
 public class youtubePage {
-	protected ElementInteractionUtils elementInteractionUtils;
 	protected WebDriver driver;
 	protected WebDriverWait wait;
 
@@ -23,7 +22,6 @@ public class youtubePage {
         }		
 		this.driver = driver;
 		PageFactory.initElements(driver, this);
-		elementInteractionUtils = new ElementInteractionUtils(driver);
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	}
 

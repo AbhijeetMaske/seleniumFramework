@@ -2,8 +2,9 @@ package com.seleniumFramework.common;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
-import org.apache.logging.log4j.Logger;
+
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -11,9 +12,12 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 
-import com.seleniumFramework.utilities.BrowserUtils;
 import com.seleniumFramework.utilities.ReadConfig;
 
 public class BaseClass {
@@ -29,14 +33,12 @@ public class BaseClass {
 
 	public static WebDriver getDriver() {
 		return driverObject.get();
-
 	}
 
 	@Parameters({ "baseUrl", "browser" })
 	@BeforeSuite
 	public void setupSuite(@Optional String baseUrl, @Optional String browser) {
 		logger = LogManager.getLogger(BaseClass.class);
-
 		this.url = baseUrl != null ? baseUrl : readConfig.getBaseUrl();
 		this.browser = browser != null ? browser : readConfig.getBrowser();
 
@@ -45,38 +47,37 @@ public class BaseClass {
 			logger.error(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		System.out.println("base URL: " + baseUrl);
-
 		try {
-			switch (browser.toLowerCase()) {
-			case "chrome":
-
-				ChromeOptions option = new ChromeOptions();
-				option.setBrowserVersion("126");
-				driver = new ChromeDriver(option);
-				break;
-			case "edge":
-				EdgeOptions edgeOptions = new EdgeOptions();
-				edgeOptions.setBrowserVersion("126");
-				driver = new EdgeDriver(edgeOptions);
-				break;
-			case "firefox":
-				FirefoxOptions firefoxOptions = new FirefoxOptions();
-				firefoxOptions.setBrowserVersion("108");
-				driver = new FirefoxDriver(firefoxOptions);
-				break;
-			default:
-				throw new IllegalArgumentException("Unsupported browser: " + this.browser);
-			}
-			driverObject.set(driver);
-			getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-			logger.info("Initialized WebDriver before suite with browser: " + this.browser);
-
-		} catch (Exception e) {
-			logger.error("Error during initializing WebDriver before suite: " + e.getMessage(), e);
-			throw e;
-		}
-	}
+            setupDriver(this.browser);
+            getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            logger.info("Initialized WebDriver before suite with browser: " + this.browser);
+        } catch (Exception e) {
+            logger.error("Error during initializing WebDriver before suite: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+	
+	private void setupDriver(String browser) {
+        switch (browser.toLowerCase()) {
+            case "chrome":
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.setBrowserVersion("126");
+                //chromeOptions.addArguments("--remote-allow-origins=*");
+                driver = new ChromeDriver(chromeOptions);
+                break;
+            case "firefox":
+                FirefoxOptions firefoxOptions = new FirefoxOptions();
+                driver = new FirefoxDriver(firefoxOptions);
+                break;
+            case "edge":
+                EdgeOptions edgeOptions = new EdgeOptions();
+                driver = new EdgeDriver(edgeOptions);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported browser: " + browser);
+        }
+        driverObject.set(driver);
+    }
 
 	@BeforeMethod
 	public void setup(Method method) {
@@ -86,29 +87,6 @@ public class BaseClass {
 		if (getDriver() == null) {
 			setupSuite(url, browser);
 		}
-
-		// Use parameters from XML if provided, otherwise fall back to config file
-//		try {
-//			switch (browser.toLowerCase()) {
-//			case "chrome":
-//				ChromeOptions option = new ChromeOptions();
-//				option.setBrowserVersion("126");
-//				driver = new ChromeDriver(option);
-//				logger.info("Initialized WebDriver in method");
-//				break;
-//			default:
-//				throw new IllegalArgumentException("Unsupported browser: " + this.browser);
-//			}
-//			driverObject.set(driver);
-//			// implicit wait of 10 second
-//			getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-//			logger.info("Initialized WebDriver for method: " + method.getName() + " with browser: " + this.browser);
-//
-//		} catch (Exception e) {
-//			logger.error("Error during WebDriver setup: " + e.getMessage(), e);
-//			throw e;
-//		}
-
 		try {
 			logger.info("Initialized WebDriver for method: " + method.getName() + " with browser: " + this.browser);
 		} catch (Exception e) {
