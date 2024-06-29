@@ -6,22 +6,23 @@ Welcome to the ultimate Selenium Framework, designed to simplify and enhance you
 
 <img  align= center width=50px height=50px src="https://media4.giphy.com/media/3hoLIVAJYkz6T0Ichp/giphy.gif?cid=6c09b952m4j3poopinf91rquev6qy4e8avu0bflq1e0vh4gp&ep=v1_internal_gif_by_id&rid=giphy.gif&ct=s"> <a id="table-of-contents">Table of Contents</a></br>
 
- - [Introduction](#Introduction)
- - [Getting Started](#Getting-Started)
- - [Project Structure](#Project-Structure)
- - [Dependencies](#Dependencies)
- - [Configuration](#Configuration)
- - [Usage](#Usage)
-	- [Element Actions](#Element-Actions)
-	- [Element Interactions](#Element-Interactions)
-	- [Element Utilities](#Element-Utilities)
-	- [Navigation and Frames](#Navigation-and-Frames)
-	- [Special Actions](#Special-Actions)
-	- [Verification Actions](#Verification-Actions)
-	- [Combined Interaction and Verification](Combined-Interaction-and-Verification)
- - [Contributing](#Contributing)
- - [License](Licenses)
- 	
+
+ - [Introduction](#introduction)
+ - [Getting Started](#getting-started)
+ - [Project Structure](#project-structure)
+ - [Dependencies](#dependencies)
+ - [Configuration](#configuration)
+ - [Usage](#usage)
+	- [Element Actions](#element-actions)
+	- [Element Interactions](#element-interactions)
+	- [Element Utilities](#element-utilities)
+	- [Navigation and Frames](#navigation-and-frames)
+	- [Special Actions](#special-actions)
+	- [Verification Actions](#verification-actions)
+	- [Combined Interaction and Verification](#combined-interaction-and-verification)
+ - [Contributing](#contributing)
+ - [License](#license)
+ 
 ---
 ## Introduction
 The Selenium Framework is crafted to address the common challenges faced during web automation. Whether you are a beginner or an experienced tester, this framework is built to make your life easier by providing easy-to-use methods for element interaction, navigation, and verification. Our goal is to make this the best Selenium framework you'll ever use.
@@ -124,7 +125,7 @@ The framework offers a rich set of utilities categorized based on their function
 ### Element Actions
 Perform basic actions on web elements:
 
-- click: Clicks on the web element.k
+- click: Clicks on the web element.
 - clickUsingJS: Clicks on the web element using JavaScript.
 - sendKeys: Sends keys to the web element.
 - sendKeysUsingJS: Sends keys to the web element using JavaScript.
