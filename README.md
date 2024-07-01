@@ -93,11 +93,9 @@ selenium-framework/
 │   └── suites/
 │   │   ├── test.xml/
 ├── pom.xml
-└── README.md
-        </pre>
-    </div>
-</div>
+└── README.md 
 ```
+
  - src/main/java: Contains the main Java code, including utilities and core functionalities.
  - src/test/java: Contains test cases and test-related code.
  - resources: Contains resource files such as configuration files and test data.
