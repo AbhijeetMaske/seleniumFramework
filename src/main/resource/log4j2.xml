@@ -3,12 +3,12 @@
     <Appenders>
         <!-- Console Appender -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %pid --- [%t] %c{1} : %m%n"/>
         </Console>
         
         <!-- File Appender -->
-        <File name="FileLogger" fileName="logs/seleniumFramework.log" append="true">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+        <File name="FileLogger" fileName="logs/SynergyWorks.log" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %pid --- [%t] %c{1} : %m%n"/>
         </File>
     </Appenders>
     <Loggers>
@@ -18,3 +18,14 @@
         </Root>
     </Loggers>
 </Configuration>
+
+<!--
+Explanation of the Pattern Layout:
+%d{yyyy-MM-dd HH:mm:ss.SSS}: Timestamp with milliseconds.
+%-5p: Log level.
+%pid: Process ID (custom property, explained below).
+[%t]: Thread name.
+%c{1}: Logger name.
+: %m%n: Log message followed by a new line.
+
+-->
