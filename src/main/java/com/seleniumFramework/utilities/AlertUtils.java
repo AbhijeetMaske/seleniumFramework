@@ -1,6 +1,7 @@
 package com.seleniumFramework.utilities;
 
 import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.WebDriver;
 import org.apache.logging.log4j.LogManager;
@@ -139,4 +140,22 @@ public class AlertUtils {
             logger.info("Prompt accepted with text: " + text);
         }
     }
+    /********************************************************************************************
+     * Return the text of toaster if present.
+     * 
+     * @return text if an toaster alert is present, false otherwise
+     * 
+     * @author Abhijeet Maske Created June 27,2023
+     * @version 1.0 June 27,2023
+     ********************************************************************************************/
+    public String getToasterText() {
+		String text = null;
+		try {
+			text = driver.findElement(By.className("toast-message")).getText();
+			logger.info("Toaster Text: "+text);
+		} catch (Exception e) {
+			logger.error("Unable to get toaster text ", e);
+		}
+		return text;
+	}
 }

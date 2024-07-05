@@ -13,6 +13,7 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Optional;
@@ -95,7 +96,7 @@ public class BaseClass {
 		}
 	}
 
-	@AfterMethod
+	@AfterSuite
 	public void tearDown(Method method) {
 		logger.info("@After Method: " + method.getName());
 		try {
