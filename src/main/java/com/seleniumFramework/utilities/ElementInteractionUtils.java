@@ -28,19 +28,19 @@ public class ElementInteractionUtils {
 	private static WebDriverWait wait;
 	static Duration timeout = Duration.ofSeconds(Config.MEDIUM_PAUSE);
 	static Duration polling = Duration.ofMillis(Config.POLLING_TIME);
-	public  static WebDriver driver;
+	public static WebDriver driver;
 	static private Actions action;
 
 	public ElementInteractionUtils(WebDriver webDriver) {
 
 		driver = BaseClass.getDriver();
-	    if (driver == null) {
-	        logger.error("WebDriver is null in ElementInteractionUtils constructor.");
-	    } else {
-	        logger.info("WebDriver initialized in ElementInteractionUtils: " + driver);
-	    }
-	    setWait(driver);
-	    ElementInteractionUtils.action = new Actions(driver);
+		if (driver == null) {
+			logger.error("WebDriver is null in ElementInteractionUtils constructor.");
+		} else {
+			logger.info("WebDriver initialized in ElementInteractionUtils: " + driver);
+		}
+		setWait(driver);
+		ElementInteractionUtils.action = new Actions(driver);
 	}
 
 	private static void setWait(WebDriver driver) {
@@ -55,15 +55,16 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 17,2024
 	 ********************************************************************************************/
-	public static boolean click(WebElement element) {
+	public static boolean click(WebElement webElement) {
 		boolean status = false;
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element));
-			element.click();
-			logger.info("Clicked on element: " + element);
+			wait.until(ExpectedConditions.elementToBeClickable(webElement));
+			highlightElement(webElement);
+			webElement.click();
+			logger.info("Clicked on element: " + webElement);
 			status = true;
 		} catch (NoSuchElementException | TimeoutException e) {
-			logger.error("Unable to click on element: " + describeElement(element), e);
+			logger.error("Unable to click on element: " + describeElement(webElement), e);
 		}
 		return status;
 	}
@@ -82,6 +83,7 @@ public class ElementInteractionUtils {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
 			waitForElementToBeVisible(webElement);
+			highlightElement(webElement);
 			js.executeScript("arguments[0].click();", webElement);
 			status = true;
 			logger.info("Successfully clicked on the web element using JavaScript: " + webElement.toString());
@@ -104,6 +106,7 @@ public class ElementInteractionUtils {
 		boolean status = false;
 		try {
 			waitForElementToBeVisible(webElement);
+			highlightElement(webElement);
 			webElement.clear();
 			webElement.sendKeys(text);
 			status = true;
@@ -126,6 +129,7 @@ public class ElementInteractionUtils {
 		try {
 			if (driver instanceof JavascriptExecutor) {
 				JavascriptExecutor js = (JavascriptExecutor) driver;
+				highlightElement(webElement);
 				js.executeScript("arguments[0].value='" + value + "';", webElement);
 			} else {
 				throw new IllegalStateException("This driver does not support JavaScript execution");
@@ -148,6 +152,7 @@ public class ElementInteractionUtils {
 		boolean status = false;
 		try {
 			waitForElementToBeVisible(webElement);
+			highlightElement(webElement);
 			webElement.clear();
 			status = true;
 			logger.info("Successfully cleared text in webElement: " + webElement.toString());
@@ -166,9 +171,9 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	private static String describeElement(WebElement element) {
-		String tagName = element.getTagName();
-		String attributes = element.toString().split("-> ")[1].replace("]", "");
+	private static String describeElement(WebElement webElement) {
+		String tagName = webElement.getTagName();
+		String attributes = webElement.toString().split("-> ")[1].replace("]", "");
 		return tagName + " [" + attributes + "]";
 	}
 
@@ -186,6 +191,7 @@ public class ElementInteractionUtils {
 		try {
 			if (driver instanceof JavascriptExecutor) {
 				JavascriptExecutor js = (JavascriptExecutor) driver;
+				highlightElement(webElement);
 				js.executeScript("var el = document.querySelector(\"" + webElement + "\").click();");
 			} else {
 				throw new IllegalStateException("This driver does not support JavaScript execution");
@@ -711,16 +717,44 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static void highlightElement(WebElement element) {
-		for (int i = 0; i < 3; i++) {
-			JavascriptExecutor js;
-			js = (JavascriptExecutor) driver;
-			js.executeScript("arguments[0].setAttribute('style',arguments[1]);", element,
-					"color: Orange; border: 2px solid red;");
-			pause(200);
-			js.executeScript("arguments[0].setAttribute('style',arguments[1]);", element, "");
+	public static void highlightElement(WebElement webElement) {
+		try {
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			String originalStyle = webElement.getAttribute("style");
+			js.executeScript("arguments[0].setAttribute('style', arguments[1]);", webElement,
+					"border: 2px solid red; border-style: dashed;");
+			// logger.info("Element highlighted: {}", element.toString());
+			Thread.sleep(500); // Highlight duration in milliseconds
+			js.executeScript("arguments[0].setAttribute('style', arguments[1]);", webElement, originalStyle);
+			// logger.info("Element highlight removed: {}", element.toString());
+		} catch (InterruptedException e) {
+			logger.error("Interrupted Exception during element highlighting: ", e);
+			Thread.currentThread().interrupt();
+		} catch (Exception e) {
+			logger.error("Exception occurred while highlighting element: ", e);
 		}
 	}
+
+	public void highlightElement(By locator) {
+		WebElement webElement = driver.findElement(locator);
+		highlightElement(webElement);
+	}
+
+	public static void highlightElement(int x) {
+		WebElement webElement = driver.findElement(
+				By.xpath(String.format("//*[contains(@style, 'left: %dpx') and contains(@style, 'top: %dpx')]", x)));
+		highlightElement(webElement);
+	}
+
+	public static void highlightElement(String visibleText) {
+		WebElement webElement = driver.findElement(By.xpath(String.format("//*[text()='%s']", visibleText)));
+		highlightElement(webElement);
+	}
+
+//	public static void highlightElement(String partialText) {
+//		WebElement webElement = driver.findElement(By.xpath(String.format("//*[contains(text(), '%s')]", partialText)));
+//		highlightElement(webElement);
+//	}
 
 	/********************************************************************************************
 	 * Verifies the presence of page text based on the provided test data.
@@ -959,16 +993,15 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
-	
+	 ********************************************************************************************/
+
 	public static boolean dragAndDrop(WebElement source, WebElement target) {
 		boolean status = false;
 		try {
 			action.dragAndDrop(source, target).perform();
 			status = true;
-			logger.info("webelement moved from source" + source+" to target "+target);
-		}
-		catch (Exception e) {
+			logger.info("webelement moved from source" + source + " to target " + target);
+		} catch (Exception e) {
 			logger.error("Problem in dragAndDroping element " + e.getMessage());
 		}
 		return status;
@@ -995,7 +1028,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public static boolean pressKey(Keys key) {
 		boolean status = false;
 		try {
@@ -1015,7 +1048,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public static boolean pressKeys(Keys... keys) {
 		boolean status = false;
 		try {
@@ -1042,18 +1075,18 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
-	public static boolean pressKeyOnElement(WebElement element, Keys key) {
+	 ********************************************************************************************/
+	public static boolean pressKeyOnElement(WebElement webElement, Keys key) {
 		boolean status = false;
 		try {
-			action.sendKeys(element, key).perform();
-			logger.info("Pressed key: " + key.name() + " on element: " + element.toString());
+			action.sendKeys(webElement, key).perform();
+			logger.info("Pressed key: " + key.name() + " on element: " + webElement.toString());
 		} catch (Exception e) {
-			logger.error("Failed to press key: " + key.name() + " on element: " + element.toString(), e);
+			logger.error("Failed to press key: " + key.name() + " on element: " + webElement.toString(), e);
 		}
 		return status;
 	}
-	
+
 	/********************************************************************************************
 	 * Simulates typing text into a specific element.
 	 * 
@@ -1063,14 +1096,14 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
-	public static boolean typeText(WebElement element, String text) {
+	 ********************************************************************************************/
+	public static boolean typeText(WebElement webElement, String text) {
 		boolean status = false;
 		try {
-			action.sendKeys(element, text).perform();
-			logger.info("Typed text: " + text + " on element: " + element.toString());
+			action.sendKeys(webElement, text).perform();
+			logger.info("Typed text: " + text + " on element: " + webElement.toString());
 		} catch (Exception e) {
-			logger.error("Failed to type text: " + text + " on element: " + element.toString(), e);
+			logger.error("Failed to type text: " + text + " on element: " + webElement.toString(), e);
 		}
 		return status;
 	}
@@ -1080,7 +1113,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void pressEnter() {
 		pressKey(Keys.ENTER);
 	}
@@ -1090,7 +1123,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void pressTab() {
 		pressKey(Keys.TAB);
 	}
@@ -1100,7 +1133,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void pressEscape() {
 		pressKey(Keys.ESCAPE);
 	}
@@ -1110,7 +1143,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void pressBackspace() {
 		pressKey(Keys.BACK_SPACE);
 	}
@@ -1122,8 +1155,8 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
-	
+	 ********************************************************************************************/
+
 	public void pressCtrlAndKey(Keys key) {
 		pressKeys(Keys.CONTROL, key);
 	}
@@ -1135,7 +1168,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void pressShiftAndKey(Keys key) {
 		pressKeys(Keys.SHIFT, key);
 	}
@@ -1147,7 +1180,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void pressAltAndKey(Keys key) {
 		pressKeys(Keys.ALT, key);
 	}
@@ -1159,7 +1192,7 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public void releaseKey(Keys key) {
 		try {
 			action.keyUp(key).perform();
@@ -1177,23 +1210,15 @@ public class ElementInteractionUtils {
 	 * 
 	 * @author Abhijeet Maske Created June 22,2024
 	 * @version 1.0 June 22,2024
-	********************************************************************************************/
+	 ********************************************************************************************/
 	public static boolean copyAndPaste(WebElement sourceElement, WebElement destinationElement) {
 		boolean status = false;
 		try {
-			action.click(sourceElement).keyDown(Keys.CONTROL)
-			.sendKeys("a")
-			.sendKeys("c")
-			.keyUp(Keys.CONTROL)
-			.click(destinationElement)
-			.keyDown(Keys.CONTROL)
-			.sendKeys("v")
-			.keyUp(Keys.CONTROL)
-			.perform();
+			action.click(sourceElement).keyDown(Keys.CONTROL).sendKeys("a").sendKeys("c").keyUp(Keys.CONTROL)
+					.click(destinationElement).keyDown(Keys.CONTROL).sendKeys("v").keyUp(Keys.CONTROL).perform();
 			logger.info("Copied text from element: " + sourceElement.toString() + " and pasted into element: "
 					+ destinationElement.toString());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.error("Unable to Copy text from element: " + sourceElement.toString() + " and pasted into element: "
 					+ destinationElement.toString());
 		}
@@ -1342,4 +1367,117 @@ public class ElementInteractionUtils {
 		}
 		return status;
 	}
+
+	/********************************************************************************************
+	 * Verifies if a specified text is present in a table column.
+	 * 
+	 * @param tableId          The ID of the table.
+	 * @param tableColumnIndex The column index to search in.
+	 * @param searchText       The text to search for.
+	 * @param nextButton       The WebElement representing the next button.
+	 * @return True if the text is found, false otherwise.
+	 * @return true if the page refresh was successful, false otherwise.
+	 * 
+	 * @author Abhijeet Maske Created July 08,2024
+	 * @version 1.0 July 08,2024
+	 ********************************************************************************************/
+	public static boolean verifyTextInTable(String tableId, int tableColumnIndex, String searchText,
+			WebElement nextButton) {
+		try {
+			WebElement table = driver.findElement(By.id(tableId));
+			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
+			String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
+			String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
+			@SuppressWarnings("unused")
+			int rowCount = 0;
+			while (true) {
+				int tableSize = tableEntries.size();
+				logger.info("Current number of table entries: {}", tableSize);
+
+				for (int i = 1; i <= tableSize; i++) {
+					String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
+					if (cellValue.contains(searchText)) {
+						highlightElement(searchText);
+						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
+						return true;
+					}
+				}
+
+				if (nextButton != null && nextButton.isEnabled()) {
+					nextButton.click();
+					logger.info("Next button clicked, checking the next set of entries");
+					rowCount += tableSize;
+					// Re-fetch the table entries after clicking next
+					tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
+				} else {
+					logger.info("Reached the end of the table, text '{}' not found", searchText);
+					break;
+				}
+			}
+			logger.info("Search completed. Text '{}' not found in the table", searchText);
+			return false;
+		} catch (Exception e) {
+			logger.error("Exception occurred while verifying text in table: ", e);
+			return false;
+		}
+	}
+
+	public static boolean verifyTextInTableAndPerformAction(String tableId, int tableColumnIndex, String searchText,
+			WebElement nextButton, WebElement actionButton) {
+		try {
+			WebElement table = driver.findElement(By.id(tableId));
+			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
+			String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
+			String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
+			@SuppressWarnings("unused")
+			int rowCount = 0;
+
+			while (true) {
+				int tableSize = tableEntries.size();
+				logger.info("Current number of table entries: {}", tableSize);
+
+				for (int i = 1; i <= tableSize; i++) {
+					String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
+					if (cellValue.contains(searchText)) {
+						highlightElement(searchText);
+						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
+
+						//WebElement actionElement = driver.findElement(By.xpath(rowXpathPrefix + i + "]" + actionButton));
+						if (actionButton.isDisplayed()) {
+							actionButton.click();
+							logger.info("Action performed on text '{}'", searchText);
+							return true;
+						}
+					}
+				}
+
+				if (nextButton != null && nextButton.isEnabled()) {
+					nextButton.click();
+					logger.info("Next button clicked, checking the next set of entries");
+					rowCount += tableSize;
+					// Re-fetch the table entries after clicking next
+					tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
+				} else {
+					logger.info("Reached the end of the table, text '{}' not found", searchText);
+					break;
+				}
+			}
+			logger.info("Search completed. Text '{}' not found in the table", searchText);
+			return false;
+		} catch (Exception e) {
+			logger.error("Exception occurred while verifying text in table: ", e);
+			return false;
+		}
+	}
+	
+	public static String getElementVisibleText(WebElement webElement) {
+		 String text = null;
+	        try {
+	            text = webElement.getText();
+	            logger.info("Successfully retrieved the visible text: '{}'", text);
+	        } catch (Exception e) {
+	            logger.error("Exception occurred while retrieving the visible text from the WebElement: {}", webElement, e);
+	        }
+	        return text;
+	    }
 }
