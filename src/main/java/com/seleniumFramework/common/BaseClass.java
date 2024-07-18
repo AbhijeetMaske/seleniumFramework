@@ -26,10 +26,11 @@ public class BaseClass {
 	ReadConfig readConfig = new ReadConfig();
 
 	protected String url;
-	String browser;
-	public static WebDriver driver;
-	protected static Logger logger;
+	protected String browser;
 	protected String browserVersion;
+	
+	public static WebDriver driver;
+	protected static Logger logger;	
 	public static ThreadLocal<WebDriver> driverObject = new ThreadLocal<WebDriver>();
 
 	public static WebDriver getDriver() {
@@ -51,9 +52,9 @@ public class BaseClass {
 		try {
             setupDriver(this.browser);
             getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-            logger.info("Initialized WebDriver before suite with browser: " + this.browser);
+            logger.info("WebDriver initialized before suite with browser: {}", this.browser);
         } catch (Exception e) {
-            logger.error("Error during initializing WebDriver before suite: " + e.getMessage(), e);
+            logger.error("Error during WebDriver initialization before suite: {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -83,31 +84,35 @@ public class BaseClass {
 	@BeforeMethod
 	public void setup(Method method) {
 		logger = LogManager.getLogger(method.getDeclaringClass());
-		logger.info("@Before Method: " + method.getName());
+		logger.info("Executing test method: {}", method.getName());
 
 		if (getDriver() == null) {
 			setupSuite(url, browser);
 		}
 		try {
-			logger.info("Initialized WebDriver for method: " + method.getName() + " with browser: " + this.browser);
+			logger.info("WebDriver initialized for method: {} with browser: {}", method.getName(), this.browser);
 		} catch (Exception e) {
-			logger.error("Error during WebDriver setup: " + e.getMessage(), e);
+			logger.error("Error during WebDriver setup: {}", e.getMessage(), e);
 			throw e;
 		}
 	}
 
+	 @AfterMethod
+	    public void afterMethod(Method method) {
+	    	logger.info("Completed test method: {}", method.getName());
+	    }
+	
 	@AfterSuite
 	public void tearDown(Method method) {
-		logger.info("@After Method: " + method.getName());
 		try {
 			if (getDriver() != null) {
 				getDriver().close();
 				getDriver().quit();
 				driverObject.remove();
+				logger.info("WebDriver closed and session ended successfully.");
 			}
-			logger.info("Torn down WebDriver for method: " + method.getName());
 		} catch (Exception e) {
-			logger.error("Error during WebDriver teardown: " + e.getMessage(), e);
+			logger.error("Error during WebDriver teardown: {}", e.getMessage(), e);
 		}
 	}
 
