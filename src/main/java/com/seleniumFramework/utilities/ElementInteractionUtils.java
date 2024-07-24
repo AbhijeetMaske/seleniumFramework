@@ -1422,8 +1422,22 @@ public class ElementInteractionUtils {
 		}
 	}
 
+	/********************************************************************************************
+	 * Verifies if a specified text is present in a table column and performs an action if found.
+	 * 
+	 * @param tableId              The ID of the table.
+	 * @param tableColumnIndex     The column index to search in.
+	 * @param searchText           The text to search for.
+	 * @param nextButton           The WebElement representing the next button.
+	 * @param actionButtonPrefix   The XPath prefix for locating the action button within the same row.
+	 * @param actionButtonPostfix  The XPath postfix for locating the action button within the same row.
+	 * @return True if the text is found and action performed, false otherwise.
+	 * 
+	 * @version 1.0 July 08, 2024
+	 ********************************************************************************************/
+
 	public static boolean verifyTextInTableAndPerformAction(String tableId, int tableColumnIndex, String searchText,
-			WebElement nextButton, WebElement actionButton) {
+			WebElement nextButton,String actionButtonPrefix, String actionButtonPostfix ) {
 		try {
 			WebElement table = driver.findElement(By.id(tableId));
 			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
@@ -1442,9 +1456,9 @@ public class ElementInteractionUtils {
 						highlightElement(searchText);
 						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
 
-						//WebElement actionElement = driver.findElement(By.xpath(rowXpathPrefix + i + "]" + actionButton));
-						if (actionButton.isDisplayed()) {
-							actionButton.click();
+						 WebElement actionElement = driver.findElement(By.xpath(actionButtonPrefix + i + actionButtonPostfix));
+						if (actionElement.isDisplayed()) {
+							actionElement.click();
 							logger.info("Action performed on text '{}'", searchText);
 							return true;
 						}
@@ -1469,9 +1483,20 @@ public class ElementInteractionUtils {
 			return false;
 		}
 	}
-	
+	/********************************************************************************************
+	 * Verifies if a specified text is present in a table column and performs an action if found.
+	 * 
+	 * @param tableId              The ID of the table.
+	 * @param tableColumnIndex     The column index to search in.
+	 * @param searchText           The text to search for.
+	 * @param nextButton           The WebElement representing the next button.
+	 * @param additionalLookupValues A map containing column indexes and expected values for additional verification within the same row.
+	 * @return True if the text is found, false otherwise.
+	 * 
+	 * @version 1.0 July 08, 2024
+	 ********************************************************************************************/
 	public static boolean verifyTableData(String tableId, int tableColumnIndex, String searchText,
-			WebElement nextButton, WebElement actionButton, Map<Integer, String> additionalLookupValues) {
+			WebElement nextButton, Map<Integer, String> additionalLookupValues) {
 		try {
 			WebElement table = driver.findElement(By.id(tableId));
 			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
@@ -1532,72 +1557,93 @@ public class ElementInteractionUtils {
 		}
 	}
 	
-	public static boolean verifyTableDataAndPerformAction(String tableId, int tableColumnIndex, String searchText,
-			WebElement nextButton, WebElement actionButton, Map<Integer, String> additionalLookupValues) {
-		try {
-			WebElement table = driver.findElement(By.id(tableId));
-			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
-			String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
-			String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
-			@SuppressWarnings("unused")
-			int rowCount = 0;
+	/********************************************************************************************
+	 * Verifies if a specified text is present in a table column and performs an action if found.
+	 * 
+	 * @param tableId              The ID of the table.
+	 * @param tableColumnIndex     The column index to search in.
+	 * @param searchText           The text to search for.
+	 * @param nextButton           The WebElement representing the next button.
+	 * @param actionButtonPrefix   The XPath prefix for locating the action button within the same row.
+	 * @param actionButtonPostfix  The XPath postfix for locating the action button within the same row.
+	 * @param additionalLookupValues A map containing column indexes and expected values for additional verification within the same row.
+	 * @return True if the text is found and action performed, false otherwise.
+	 * 
+	 * @version 1.0 July 08, 2024
+	 ********************************************************************************************/
+	public static boolean verifyTableDataAndPerformAction(
+	        String tableId, 
+	        int tableColumnIndex, 
+	        String searchText,
+	        WebElement nextButton, 
+	        String actionButtonPrefix, 
+	        String actionButtonPostfix, 
+	        Map<Integer, String> additionalLookupValues
+	    ) {
+	    try {
+	        WebElement table = driver.findElement(By.id(tableId));
+	        List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
+	        String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
+	        String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
+	        int rowCount = 0;
 
-			while (true) {
-				int tableSize = tableEntries.size();
-				logger.info("Current number of table entries: {}", tableSize);
+	        while (true) {
+	            int tableSize = tableEntries.size();
+	            logger.info("Current number of table entries: {}", tableSize);
 
-				for (int i = 1; i <= tableSize; i++) {
-					String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
-					if (cellValue.contains(searchText)) {
-						highlightElement(driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)));
-						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
-						boolean allValuesMatch = true;
-						for (Map.Entry<Integer, String> entry : additionalLookupValues.entrySet()) {
-							int lookupColumnIndex = entry.getKey();
-							String expectedValue = entry.getValue();
-							String actualValue = driver
-									.findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]"))
-									.getText();
-							highlightElement(actualValue);
+	            for (int i = 1; i <= tableSize; i++) {
+	                String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
+	                if (cellValue.contains(searchText)) {
+	                    highlightElement(driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)));
+	                    logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
+	                    
+	                    boolean allValuesMatch = true;
+	                    for (Map.Entry<Integer, String> entry : additionalLookupValues.entrySet()) {
+	                        int lookupColumnIndex = entry.getKey();
+	                        String expectedValue = entry.getValue();
+	                        String actualValue = driver
+	                                .findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]"))
+	                                .getText();
+	                        highlightElement(driver.findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]")));
 
-							if (!actualValue.equals(expectedValue)) {
-								allValuesMatch = false;
-								logger.info("Mismatch found in column {}: expected '{}', but got '{}'",
-										lookupColumnIndex, expectedValue, actualValue);
-								break;
-							}
-						}
+	                        if (!actualValue.equals(expectedValue)) {
+	                            allValuesMatch = false;
+	                            logger.info("Mismatch found in column {}: expected '{}', but got '{}'",
+	                                    lookupColumnIndex, expectedValue, actualValue);
+	                            break;
+	                        }
+	                    }
 
-						if (allValuesMatch) {
-							logger.info("All lookup values match for text '{}'", searchText);																									
-							if (actionButton.isDisplayed()) {
-								highlightElement(actionButton);
-								actionButton.click();								
-								logger.info("clickedon action button '{}'", searchText);
-								logger.info("Action performed on text '{}'", searchText);
-								return true;
-							}
-						}
-					}
-				}
+	                    if (allValuesMatch) {
+	                        logger.info("All lookup values match for text '{}'", searchText);
+	                        
+	                        WebElement actionElement = driver.findElement(By.xpath(actionButtonPrefix + i + actionButtonPostfix));
+	                        if (actionElement.isDisplayed()) {
+	                            highlightElement(actionElement);
+	                            actionElement.click();
+	                            logger.info("Action performed on text '{}'", searchText);
+	                            return true;
+	                        }
+	                    }
+	                }
+	            }
 
-				if (nextButton != null && nextButton.isEnabled()) {
-					nextButton.click();
-					logger.info("Next button clicked, checking the next set of entries");
-					rowCount += tableSize;
-					// Re-fetch the table entries after clicking next
-					tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
-				} else {
-					logger.info("Reached the end of the table, text '{}' not found", searchText);
-					break;
-				}
-			}
-			logger.info("Search completed. Text '{}' not found in the table", searchText);
-			return false;
-		} catch (Exception e) {
-			logger.error("Exception occurred while verifying text in table and performing action: ", e);
-			return false;
-		}
+	            if (nextButton != null && nextButton.isEnabled()) {
+	                nextButton.click();
+	                logger.info("Next button clicked, checking the next set of entries");
+	                rowCount += tableSize;
+	                tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
+	            } else {
+	                logger.info("Reached the end of the table, text '{}' not found", searchText);
+	                break;
+	            }
+	        }
+	        logger.info("Search completed. Text '{}' not found in the table", searchText);
+	        return false;
+	    } catch (Exception e) {
+	        logger.error("Exception occurred while verifying text in table and performing action: ", e);
+	        return false;
+	    }
 	}
 	
 	public static String getElementVisibleText(WebElement webElement) {
