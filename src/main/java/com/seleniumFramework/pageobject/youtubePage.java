@@ -35,7 +35,6 @@ public class youtubePage {
 	public String getHompageUrl() {
 		System.out.println("homepage");
 		String currentURL = driver.getCurrentUrl();
-		ExtentReportListener.getExtent().log(Status.PASS, "URL fetched " + currentURL);
 		return currentURL;
 	}
 	

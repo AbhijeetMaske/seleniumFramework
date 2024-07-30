@@ -40,9 +40,9 @@ public class AlertUtils {
         try {
             Alert alert = driver.switchTo().alert();
             alert.accept();
-            logger.info("Alert accepted.");
+            logger.info("Alert accepted successfully.");
         } catch (NoAlertPresentException e) {
-            logger.error("No alert present to accept.", e);
+        	 logger.error("No alert found to accept.", e);
         }
     }
 
@@ -58,9 +58,9 @@ public class AlertUtils {
         try {
             Alert alert = driver.switchTo().alert();
             alert.dismiss();
-            logger.info("Alert dismissed.");
+            logger.info("Alert dismissed successfully.");
         } catch (NoAlertPresentException e) {
-            logger.error("No alert present to dismiss.", e);
+        	logger.error("No alert found to dismiss.", e);
         }
     }
 
@@ -76,10 +76,10 @@ public class AlertUtils {
         try {
             Alert alert = driver.switchTo().alert();
             String alertText = alert.getText();
-            logger.info("Alert text retrieved: " + alertText);
+            logger.info("Alert text retrieved: {}", alertText);
             return alertText;
         } catch (NoAlertPresentException e) {
-            logger.warn("No alert present to get text from.");
+        	logger.warn("No alert found to retrieve text from.");
             return null;
         }
     }
@@ -107,8 +107,10 @@ public class AlertUtils {
      * @version 1.0 June 27,2023
      ********************************************************************************************/
     public void acceptAlertIfPresent() {
-        if (isAlertPresent()) {
+    	try {
             acceptAlert();
+        } catch (NoAlertPresentException e) {
+            logger.error("No alert found to accept.", e);
         }
     }
 
@@ -118,8 +120,10 @@ public class AlertUtils {
      * @version 1.0 June 27,2023
      ********************************************************************************************/
     public void dismissAlertIfPresent() {
-        if (isAlertPresent()) {
+    	try {
             dismissAlert();
+        } catch (NoAlertPresentException e) {
+            logger.error("No alert found to dismiss.", e);
         }
     }
     
@@ -133,12 +137,14 @@ public class AlertUtils {
      ********************************************************************************************/
     
     public void acceptPrompt(String text) {
-        if (isAlertPresent()) {
-            Alert alert = driver.switchTo().alert();
-            alert.sendKeys(text);
-            alert.accept();
-            logger.info("Prompt accepted with text: " + text);
-        }
+    	 try {
+             Alert alert = driver.switchTo().alert();
+             alert.sendKeys(text);
+             alert.accept();
+             logger.info("Prompt accepted with text: {}", text);
+         } catch (NoAlertPresentException e) {
+             logger.error("No prompt found to accept with text: {}", text, e);
+         }
     }
     /********************************************************************************************
      * Return the text of toaster if present.
@@ -152,9 +158,9 @@ public class AlertUtils {
 		String text = null;
 		try {
 			text = driver.findElement(By.className("toast-message")).getText();
-			logger.info("Toaster Text: "+text);
+			logger.info("Toaster text retrieved: {}", text);
 		} catch (Exception e) {
-			logger.error("Unable to get toaster text ", e);
+			logger.error("Unable to retrieve toaster text.", e);
 		}
 		return text;
 	}

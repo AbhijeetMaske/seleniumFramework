@@ -23,11 +23,12 @@ public class ApiUtils {
      ********************************************************************************************/
     public static Response get(String url) {
         try {
-        	logger.info("Sending GET request to: " + url);
-            return RestAssured.get(url);
+        	logger.info("Initiating GET request to URL: {}", url);
+        	Response response = RestAssured.get(url);
+            logger.info("GET request to URL: {} completed with status code: {}", url, response.getStatusCode());
+            return response;
         } catch (Exception e) {
-        	logger.error("Error while sending GET request to: " + url, e);
-            e.printStackTrace();
+        	logger.error("Exception occurred while making GET request to URL: {}", url, e);
             return null;
         }
     }
@@ -43,12 +44,13 @@ public class ApiUtils {
      * @version 1.0 June 27,2023
      ********************************************************************************************/
     public static Response post(String url, String body) {
-        try {
-        	logger.info("Sending POST request to: " + url);
-            return RestAssured.given().body(body).post(url);
+    	try {
+            logger.info("Initiating POST request to URL: {} with body: {}", url, body);
+            Response response = RestAssured.given().body(body).post(url);
+            logger.info("POST request to URL: {} completed with status code: {}", url, response.getStatusCode());
+            return response;
         } catch (Exception e) {
-        	logger.error("Error while sending POST request to: " + url, e);
-            e.printStackTrace();
+            logger.error("Exception occurred while making POST request to URL: {} with body: {}", url, body, e);
             return null;
         }
     }

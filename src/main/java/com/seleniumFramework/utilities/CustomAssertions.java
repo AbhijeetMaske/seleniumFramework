@@ -1,5 +1,7 @@
 package com.seleniumFramework.utilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
 /**
@@ -7,7 +9,7 @@ import org.testng.Assert;
  * with detailed error messages to improve the clarity of test failures.
  */
 public class CustomAssertions {
-
+	private static final Logger logger = LogManager.getLogger(ApiUtils.class);
 	/********************************************************************************************
      * Asserts that two strings are equal. If they are not, an AssertionError is thrown.
      * 
@@ -22,9 +24,8 @@ public class CustomAssertions {
 		try {
 			Assert.assertEquals(actual, expected, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
-			System.err.println("Expected: " + expected);
-			System.err.println("Actual: " + actual);
+			logger.error("Assertion Failed: {}", message);
+            logger.error("Expected: {}, Actual: {}", expected, actual);
 			throw e;
 		}
 	}
@@ -43,9 +44,8 @@ public class CustomAssertions {
 		try {
 			Assert.assertEquals(actual, expected, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
-			System.err.println("Expected: " + expected);
-			System.err.println("Actual: " + actual);
+			logger.error("Assertion Failed: {}", message);
+            logger.error("Expected: {}, Actual: {}", expected, actual);
 			throw e;
 		}
 	}
@@ -64,9 +64,8 @@ public class CustomAssertions {
 		try {
 			Assert.assertEquals(actual, expected, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
-			System.err.println("Expected: " + expected);
-			System.err.println("Actual: " + actual);
+			logger.error("Assertion Failed: {}", message);
+            logger.error("Expected: {}, Actual: {}", expected, actual);
 			throw e;
 		}
 	}
@@ -103,7 +102,7 @@ public class CustomAssertions {
 		try {
 			Assert.assertFalse(condition, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
+			logger.error("Assertion Failed: {}", message);
 			throw e;
 		}
 	}
@@ -121,8 +120,8 @@ public class CustomAssertions {
 		try {
 			Assert.assertNull(object, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
-			System.err.println("Object was expected to be null, but it was: " + object);
+			logger.error("Assertion Failed: {}", message);
+            logger.error("Object was expected to be null, but it was: {}", object);
 			throw e;
 		}
 	}
@@ -140,8 +139,8 @@ public class CustomAssertions {
 		try {
 			Assert.assertNotNull(object, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
-			System.err.println("Object was expected to be non-null, but it was null.");
+			logger.error("Assertion Failed: {}", message);
+            logger.error("Object was expected to be non-null, but it was null.");
 			throw e;
 		}
 	}
@@ -160,9 +159,8 @@ public class CustomAssertions {
 		try {
 			Assert.assertEquals(actual, expected, message);
 		} catch (AssertionError e) {
-			System.err.println("Assertion Failed: " + message);
-			System.err.println("Expected: " + expected);
-			System.err.println("Actual: " + actual);
+			logger.error("Assertion Failed: {}", message);
+            logger.error("Expected: {}, Actual: {}", expected, actual);
 			throw e;
 		}
 	}
