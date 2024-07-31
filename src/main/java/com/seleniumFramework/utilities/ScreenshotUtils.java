@@ -30,13 +30,13 @@ public class ScreenshotUtils {
      ********************************************************************************************/
     public static synchronized String captureScreenShot(String testName) {
         String filePath = System.getProperty("user.dir") + "//screenshots//" + testName + ".png";
+        logger.info("Attempting to capture screenshot for test: {}", testName);
         File src = ((TakesScreenshot) BaseClass.getDriver()).getScreenshotAs(OutputType.FILE);
         try {
             FileUtils.copyFile(src, new File(filePath));
-            logger.info("Screenshot captured: " + filePath);
+            logger.info("Screenshot successfully captured: {}", filePath);
         } catch (IOException e) {
-        	logger.error("Failed to capture screenshot: " + e.getMessage());
-            e.printStackTrace();
+        	logger.error("Failed to capture screenshot for test: {}. Error: {}", testName, e.getMessage(), e);
         }
         return filePath;
     }

@@ -21,10 +21,13 @@ public class FileUtils {
      * @version 1.0 June 27,2023
      ********************************************************************************************/
     public static String readFile(String filePath) throws IOException {
+    	logger.info("Attempting to read file: {}", filePath);
     	try {
-            return new String(Files.readAllBytes(Paths.get(filePath)));
+    		String content = new String(Files.readAllBytes(Paths.get(filePath)));
+            logger.info("Successfully read file: {}", filePath);
+            return content;
         } catch (IOException e) {
-            logger.error("Failed to read file: " + e.getMessage());
+            logger.error("Failed to read file: {}", filePath, e);
             throw e;
         }
     }
@@ -40,12 +43,14 @@ public class FileUtils {
      * @version 1.0 June 27,2023
      ********************************************************************************************/
     public static void writeFile(String filePath, String content) throws IOException {
-    	try {
-            Files.write(Paths.get(filePath), content.getBytes());
-        } catch (IOException e) {
-            logger.error("Failed to write to file: " + e.getMessage());
-            throw e;
-        }
+    	 logger.info("Attempting to write to file: {}", filePath);
+    	 try {
+             Files.write(Paths.get(filePath), content.getBytes());
+             logger.info("Successfully wrote to file: {}", filePath);
+         } catch (IOException e) {
+             logger.error("Failed to write to file: {}", filePath, e);
+             throw e;
+         }
     }
     
     /********************************************************************************************
@@ -57,10 +62,12 @@ public class FileUtils {
      * @version 1.0 June 27,2023
      ********************************************************************************************/
     public static void deleteFile(String filePath) {
+    	logger.info("Attempting to delete file: {}", filePath);
     	try {
             Files.deleteIfExists(Paths.get(filePath));
+            logger.info("Successfully deleted file: {}", filePath);
         } catch (IOException e) {
-            logger.error("Failed to delete file: " + e.getMessage());
+            logger.error("Failed to delete file: {}", filePath, e);
             e.printStackTrace();
         }
     }
