@@ -9,7 +9,7 @@ import org.testng.Assert;
  * with detailed error messages to improve the clarity of test failures.
  */
 public class CustomAssertions {
-	private static final Logger logger = LogManager.getLogger(ApiUtils.class);
+	private static final Logger logger = LogManager.getLogger(CustomAssertions.class);
 	/********************************************************************************************
      * Asserts that two strings are equal. If they are not, an AssertionError is thrown.
      * 
