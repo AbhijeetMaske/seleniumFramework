@@ -60,6 +60,6 @@ This document outlines the naming conventions for various UI/control types when 
 
 - 1.Consistency: Always use the specified prefixes to maintain consistency across the project.
 - 2.Readability: Choose meaningful names that clearly describe the UI element's purpose.
-- 3. Clarity: Ensure the locator names are clear and understandable to anyone reading the code.
+- 3.Clarity: Ensure the locator names are clear and understandable to anyone reading the code.
 
 By adhering to these naming conventions, you ensure that your Selenium locators are easy to understand, maintain, and use, leading to a more efficient and manageable test automation suite.
