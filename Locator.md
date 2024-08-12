@@ -56,7 +56,7 @@ This document outlines the naming conventions for various UI/control types when 
 | Complex  | TreeView                   | tre    | treOrganization |
 
 
-** Guidelines **
+**Guidelines**
 
 - 1.Consistency: Always use the specified prefixes to maintain consistency across the project.
 - 2.Readability: Choose meaningful names that clearly describe the UI element's purpose.
