@@ -7,12 +7,19 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.seleniumFramework.common.BaseClass;
@@ -348,30 +355,6 @@ public class ElementInteractionUtils {
 	}
 
 	/********************************************************************************************
-	 * wait for web element and set text in it.
-	 * 
-	 * @param webElement {@link WebElement} -webElement to click
-	 * @param text       {@link String} - text to enter
-	 * @return status {@link boolean} - true/false
-	 * 
-	 * @author Abhijeet Maske Created June 27,2023
-	 * @version 1.0 June 27,2023
-	 ********************************************************************************************/
-	public static WebElement findElement(By byelement, Duration timeout) {
-		WebElement webelement = null;
-		try {
-			FluentWait<WebDriver> fluentWait = new FluentWait<>(driver).withTimeout(timeout)
-					.ignoring(NoSuchElementException.class);
-			webelement = fluentWait.until(ExpectedConditions.presenceOfElementLocated(byelement));
-			logger.info("Element is visible: " + byelement.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Unable to find webElement: " + byelement);
-		}
-		return webelement;
-	}
-
-	/********************************************************************************************
 	 * verifies element is present
 	 * 
 	 * @param webElement {@link WebElement} -webElement to click
@@ -431,6 +414,7 @@ public class ElementInteractionUtils {
 		boolean status = false;
 		waitForElementToBeVisible(webElement);
 		try {
+			highlightElement(webElement);
 			status = webElement.getText().contains(text);
 			logger.info("Verifying text: " + text + " within web element: " + webElement);
 		} catch (Exception e) {
@@ -548,22 +532,29 @@ public class ElementInteractionUtils {
 	 * @author Abhijeet Maske Created June 27,2023
 	 * @version 1.0 June 27,2023
 	 ********************************************************************************************/
-	public static boolean scrollIntoView(WebElement webElement) {
+	public static boolean scrollToElement(WebElement webElement) {
 		boolean status = false;
-		WebElement webelement;
+		wait.until(ExpectedConditions.visibilityOf(webElement));
 		try {
-			logger.info("Scrolling into view: " + webElement.toString());
-			((RemoteWebDriver) driver).executeScript("argument[0].scrollIntoView();", webElement);
-			webelement = driver.findElement(By.xpath("(//*[contains(text(),'')])[1]"));
-			click(webelement);
-			// Actions action = new Actions(driver);
-			action.moveByOffset(8000, 8000).click().perform();
+			if (webElement == null) {
+				logger.error("Cannot scroll to null WebElement.");
+				throw new IllegalArgumentException("WebElement is null.");
+			}			
+			highlightElement(webElement);
+			pause(500);
+			JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+			jsExecutor.executeScript("arguments[0].scrollIntoView(true);", webElement);
+			logger.info("Scrolled to element: {}", webElement);
 			status = true;
 		} catch (Exception e) {
-			logger.error("Exception occurred while scrolling into view: " + e.getMessage(), e);
+			String errorMsg = String.format("An error occurred while scrolling to the element: %s. Error: %s", webElement,
+					e.getMessage());
+			logger.error(errorMsg, e);
+			throw new RuntimeException(errorMsg, e);
 		}
 		return status;
 	}
+
 
 	/********************************************************************************************
 	 * Pause the test action
@@ -638,7 +629,7 @@ public class ElementInteractionUtils {
 		WebElement getElementByText;
 		try {
 			getElementByText = driver.findElement(By.xpath("(//*[contains(text(),\"" + text + "\")])[]1]"));
-			ElementInteractionUtils.scrollIntoView(getElementByText);
+			ElementInteractionUtils.scrollToElement(getElementByText);
 			if (ElementInteractionUtils.isPresent(getElementByText, 60)
 					|| ElementInteractionUtils.waitForElementToBeVisible(getElementByText)) {
 				status = true;
@@ -735,7 +726,7 @@ public class ElementInteractionUtils {
 		}
 	}
 
-	public void highlightElement(By locator) {
+	public static void highlightElement(By locator) {
 		WebElement webElement = driver.findElement(locator);
 		highlightElement(webElement);
 	}
@@ -1398,6 +1389,7 @@ public class ElementInteractionUtils {
 					String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
 					if (cellValue.contains(searchText)) {
 						highlightElement(searchText);
+						pause(100);
 						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
 						return true;
 					}
@@ -1423,21 +1415,24 @@ public class ElementInteractionUtils {
 	}
 
 	/********************************************************************************************
-	 * Verifies if a specified text is present in a table column and performs an action if found.
+	 * Verifies if a specified text is present in a table column and performs an
+	 * action if found.
 	 * 
-	 * @param tableId              The ID of the table.
-	 * @param tableColumnIndex     The column index to search in.
-	 * @param searchText           The text to search for.
-	 * @param nextButton           The WebElement representing the next button.
-	 * @param actionButtonPrefix   The XPath prefix for locating the action button within the same row.
-	 * @param actionButtonPostfix  The XPath postfix for locating the action button within the same row.
+	 * @param tableId             The ID of the table.
+	 * @param tableColumnIndex    The column index to search in.
+	 * @param searchText          The text to search for.
+	 * @param nextButton          The WebElement representing the next button.
+	 * @param actionButtonPrefix  The XPath prefix for locating the action button
+	 *                            within the same row.
+	 * @param actionButtonPostfix The XPath postfix for locating the action button
+	 *                            within the same row.
 	 * @return True if the text is found and action performed, false otherwise.
 	 * 
 	 * @version 1.0 July 08, 2024
 	 ********************************************************************************************/
 
 	public static boolean verifyTextInTableAndPerformAction(String tableId, int tableColumnIndex, String searchText,
-			WebElement nextButton,String actionButtonPrefix, String actionButtonPostfix ) {
+			WebElement nextButton, String actionButtonPrefix, String actionButtonPostfix) {
 		try {
 			WebElement table = driver.findElement(By.id(tableId));
 			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
@@ -1456,7 +1451,8 @@ public class ElementInteractionUtils {
 						highlightElement(searchText);
 						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
 
-						 WebElement actionElement = driver.findElement(By.xpath(actionButtonPrefix + i + actionButtonPostfix));
+						WebElement actionElement = driver
+								.findElement(By.xpath(actionButtonPrefix + i + actionButtonPostfix));
 						if (actionElement.isDisplayed()) {
 							actionElement.click();
 							logger.info("Action performed on text '{}'", searchText);
@@ -1483,14 +1479,18 @@ public class ElementInteractionUtils {
 			return false;
 		}
 	}
+
 	/********************************************************************************************
-	 * Verifies if a specified text is present in a table column and performs an action if found.
+	 * Verifies if a specified text is present in a table column and performs an
+	 * action if found.
 	 * 
-	 * @param tableId              The ID of the table.
-	 * @param tableColumnIndex     The column index to search in.
-	 * @param searchText           The text to search for.
-	 * @param nextButton           The WebElement representing the next button.
-	 * @param additionalLookupValues A map containing column indexes and expected values for additional verification within the same row.
+	 * @param tableId                The ID of the table.
+	 * @param tableColumnIndex       The column index to search in.
+	 * @param searchText             The text to search for.
+	 * @param nextButton             The WebElement representing the next button.
+	 * @param additionalLookupValues A map containing column indexes and expected
+	 *                               values for additional verification within the
+	 *                               same row.
 	 * @return True if the text is found, false otherwise.
 	 * 
 	 * @version 1.0 July 08, 2024
@@ -1533,7 +1533,7 @@ public class ElementInteractionUtils {
 
 						if (allValuesMatch) {
 							logger.info("All lookup values match for text '{}'", searchText);
-							return true;																
+							return true;
 						}
 					}
 				}
@@ -1556,104 +1556,329 @@ public class ElementInteractionUtils {
 			return false;
 		}
 	}
-	
+
 	/********************************************************************************************
-	 * Verifies if a specified text is present in a table column and performs an action if found.
+	 * Verifies if a specified text is present in a table column and performs an
+	 * action if found.
 	 * 
-	 * @param tableId              The ID of the table.
-	 * @param tableColumnIndex     The column index to search in.
-	 * @param searchText           The text to search for.
-	 * @param nextButton           The WebElement representing the next button.
-	 * @param actionButtonPrefix   The XPath prefix for locating the action button within the same row.
-	 * @param actionButtonPostfix  The XPath postfix for locating the action button within the same row.
-	 * @param additionalLookupValues A map containing column indexes and expected values for additional verification within the same row.
+	 * @param tableId                The ID of the table.
+	 * @param tableColumnIndex       The column index to search in.
+	 * @param searchText             The text to search for.
+	 * @param nextButton             The WebElement representing the next button.
+	 * @param actionButtonPrefix     The XPath prefix for locating the action button
+	 *                               within the same row.
+	 * @param actionButtonPostfix    The XPath postfix for locating the action
+	 *                               button within the same row.
+	 * @param additionalLookupValues A map containing column indexes and expected
+	 *                               values for additional verification within the
+	 *                               same row.
 	 * @return True if the text is found and action performed, false otherwise.
 	 * 
 	 * @version 1.0 July 08, 2024
 	 ********************************************************************************************/
-	public static boolean verifyTableDataAndPerformAction(
-	        String tableId, 
-	        int tableColumnIndex, 
-	        String searchText,
-	        WebElement nextButton, 
-	        String actionButtonPrefix, 
-	        String actionButtonPostfix, 
-	        Map<Integer, String> additionalLookupValues
-	    ) {
-	    try {
-	        WebElement table = driver.findElement(By.id(tableId));
-	        List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
-	        String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
-	        String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
-	        int rowCount = 0;
+	public static boolean verifyTableDataAndPerformAction(String tableId, int tableColumnIndex, String searchText,
+			WebElement nextButton, String actionButtonPrefix, String actionButtonPostfix,
+			Map<Integer, String> additionalLookupValues) {
+		try {
+			WebElement table = driver.findElement(By.id(tableId));
+			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
+			String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
+			String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
+			int rowCount = 0;
 
-	        while (true) {
-	            int tableSize = tableEntries.size();
-	            logger.info("Current number of table entries: {}", tableSize);
+			while (true) {
+				int tableSize = tableEntries.size();
+				logger.info("Current number of table entries: {}", tableSize);
 
-	            for (int i = 1; i <= tableSize; i++) {
-	                String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
-	                if (cellValue.contains(searchText)) {
-	                    highlightElement(driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)));
-	                    logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
-	                    
-	                    boolean allValuesMatch = true;
-	                    for (Map.Entry<Integer, String> entry : additionalLookupValues.entrySet()) {
-	                        int lookupColumnIndex = entry.getKey();
-	                        String expectedValue = entry.getValue();
-	                        String actualValue = driver
-	                                .findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]"))
-	                                .getText();
-	                        highlightElement(driver.findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]")));
+				for (int i = 1; i <= tableSize; i++) {
+					String cellValue = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)).getText();
+					if (cellValue.contains(searchText)) {
+						highlightElement(driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix)));
+						logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
 
-	                        if (!actualValue.equals(expectedValue)) {
-	                            allValuesMatch = false;
-	                            logger.info("Mismatch found in column {}: expected '{}', but got '{}'",
-	                                    lookupColumnIndex, expectedValue, actualValue);
-	                            break;
-	                        }
-	                    }
+						boolean allValuesMatch = true;
+						for (Map.Entry<Integer, String> entry : additionalLookupValues.entrySet()) {
+							int lookupColumnIndex = entry.getKey();
+							String expectedValue = entry.getValue();
+							String actualValue = driver
+									.findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]"))
+									.getText();
+							highlightElement(driver
+									.findElement(By.xpath(rowXpathPrefix + i + "]/td[" + lookupColumnIndex + "]")));
 
-	                    if (allValuesMatch) {
-	                        logger.info("All lookup values match for text '{}'", searchText);
-	                        
-	                        WebElement actionElement = driver.findElement(By.xpath(actionButtonPrefix + i + actionButtonPostfix));
-	                        if (actionElement.isDisplayed()) {
-	                            highlightElement(actionElement);
-	                            actionElement.click();
-	                            logger.info("Action performed on text '{}'", searchText);
-	                            return true;
-	                        }
-	                    }
-	                }
-	            }
+							if (!actualValue.equals(expectedValue)) {
+								allValuesMatch = false;
+								logger.info("Mismatch found in column {}: expected '{}', but got '{}'",
+										lookupColumnIndex, expectedValue, actualValue);
+								break;
+							}
+						}
 
-	            if (nextButton != null && nextButton.isEnabled()) {
-	                nextButton.click();
-	                logger.info("Next button clicked, checking the next set of entries");
-	                rowCount += tableSize;
-	                tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
-	            } else {
-	                logger.info("Reached the end of the table, text '{}' not found", searchText);
-	                break;
-	            }
-	        }
-	        logger.info("Search completed. Text '{}' not found in the table", searchText);
-	        return false;
-	    } catch (Exception e) {
-	        logger.error("Exception occurred while verifying text in table and performing action: ", e);
-	        return false;
-	    }
+						if (allValuesMatch) {
+							logger.info("All lookup values match for text '{}'", searchText);
+
+							WebElement actionElement = driver
+									.findElement(By.xpath(actionButtonPrefix + i + actionButtonPostfix));
+							if (actionElement.isDisplayed()) {
+								highlightElement(actionElement);
+								actionElement.click();
+								logger.info("Action performed on text '{}'", searchText);
+								return true;
+							}
+						}
+					}
+				}
+
+				if (nextButton != null && nextButton.isEnabled()) {
+					nextButton.click();
+					logger.info("Next button clicked, checking the next set of entries");
+					rowCount += tableSize;
+					tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
+				} else {
+					logger.info("Reached the end of the table, text '{}' not found", searchText);
+					break;
+				}
+			}
+			logger.info("Search completed. Text '{}' not found in the table", searchText);
+			return false;
+		} catch (Exception e) {
+			logger.error("Exception occurred while verifying text in table and performing action: ", e);
+			return false;
+		}
 	}
-	
+
+	/********************************************************************************************
+	 * Uploads a file to the specified web element (e.g., file input field).
+	 * 
+	 * This method accepts the file path and sends it to the upload input field,
+	 * allowing the file to be uploaded.
+	 * 
+	 * @param uploadButton the web element (file input field) where the file will be
+	 *                     uploaded
+	 * @param filePath     the absolute path of the file to be uploaded
+	 * @throws Exception if an error occurs during the file upload process
+	 * 
+	 * @author Abhijeet Maske Created August 17, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+	public static void uploadFile(WebElement uploadButton, String filePath) throws Exception {
+		try {
+			File file = new File(filePath);
+			if (file.exists() && file.isFile()) {
+				uploadButton.sendKeys(file.getAbsolutePath());
+				logger.info("File uploaded successfully: {}", filePath);
+			} else {
+				logger.error("File not found or invalid: {}", filePath);
+				throw new FileNotFoundException("File not found or invalid: " + filePath);
+			}
+		} catch (Exception e) {
+			logger.error("Error during file upload: {}", filePath, e);
+			throw e;
+		}
+	}
+
+	/********************************************************************************************
+	 * Retrieves the visible text of a web element. This method attempts to retrieve
+	 * the text content of the provided web element.
+	 * 
+	 * @param webElement the web element from which the text is to be retrieved
+	 * @return the visible text of the web element, or `null` if an exception occurs
+	 * 
+	 * @author Abhijeet Maske Created August 20, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+
 	public static String getElementVisibleText(WebElement webElement) {
-		 String text = null;
-	        try {
-	            text = webElement.getText();
-	            logger.info("Successfully retrieved the visible text: '{}'", text);
-	        } catch (Exception e) {
-	            logger.error("Exception occurred while retrieving the visible text from the WebElement: {}", webElement, e);
-	        }
-	        return text;
-	    }
+		String text = null;
+		try {
+			text = webElement.getText();
+			logger.info("Successfully retrieved the visible text: '{}'", text);
+		} catch (Exception e) {
+			logger.error("Exception occurred while retrieving the visible text from the WebElement: {}", webElement, e);
+		}
+		return text;
+	}
+
+	/* Datepicker Start */
+	/********************************************************************************************
+	 * Selects a date from a date picker UI element. This method validates the date
+	 * format, navigates through the calendar UI, and selects the specified date.
+	 * 
+	 * @param date              the date to be selected in the format DD/MM/YYYY
+	 * @param webElement        the web element representing the date picker input
+	 *                          field
+	 * @param DatePicker_Switch the XPath expression for the calendar's switch
+	 *                          button (e.g., year selector)
+	 * @param DatePicker_Header the XPath expression for the calendar's header
+	 *                          (e.g., displaying the year)
+	 * @param DatePicker_prev   the XPath expression for the previous year button
+	 * @param DatePicker_next   the XPath expression for the next year button
+	 * 
+	 * @throws InterruptedException if the thread is interrupted during execution
+	 * @throws RuntimeException     if an error occurs during date selection
+	 * 
+	 * @author Abhijeet Maske Created August 17, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+	public static void datePicker(String date, WebElement webElement) throws InterruptedException {
+		try {
+			if (!isValidDateFormat(date)) {
+				logger.error("Invalid date format: {}. Expected format is DD/MM/YYYY.", date);
+				throw new IllegalArgumentException("Invalid date format: " + date);
+			}
+			webElement.click();
+			WebElement yearToggleButton = driver.findElement(By.xpath("//*[@id='datePickerHeader']"));
+			highlightElement(yearToggleButton);
+			yearToggleButton.click();
+
+			String displayedYearText = driver.findElement(By.xpath("(//*[@id=\"datePickerHeader\"])[2]")).getText();
+			logger.info("Displayed Calendar Year: {}", displayedYearText);
+
+			int displayedYear = Integer.parseInt(displayedYearText);
+			String[] dateParts = date.split("/");
+			String selectedDay = dateParts[0];
+			String selectedMonth = convertMonthNumberToName(Integer.parseInt(dateParts[1]));
+			int selectedYear = Integer.parseInt(dateParts[2]);
+			logger.info("Selected Year: {}", selectedYear);
+
+			navigateToYear(displayedYear, selectedYear);
+
+			WebElement monthElement = WebElementLocators.xpathByTagnameAndText("span", selectedMonth);
+			highlightElement(monthElement);
+			monthElement.click();
+
+			WebElement dayElement = WebElementLocators.xpathByClassAndText("day", selectedDay);
+			highlightElement(dayElement);
+			dayElement.click();
+
+			logger.info("Date selected: {}/{}/{}", selectedDay, selectedMonth, selectedYear);
+		} catch (Exception e) {
+			logger.error("An error occurred while selecting the date: {}", e.getMessage());
+			throw new RuntimeException(e);
+		}
+	}
+
+	/********************************************************************************************
+	 * Navigates the calendar to the target year.
+	 * 
+	 * This method calculates the difference between the currently displayed year
+	 * and the target year, and clicks the appropriate navigation button until the
+	 * target year is displayed.
+	 * 
+	 * @param displayedYear     the currently displayed year on the calendar
+	 * @param targetYear        the year to navigate to
+	 * @param DatePicker_Header the XPath expression for the calendar's header
+	 *                          (e.g., displaying the year)
+	 * @param DatePicker_prev   the XPath expression for the previous year button
+	 * @param DatePicker_next   the XPath expression for the next year button
+	 * 
+	 * @author Abhijeet Maske Created August 17, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+	private static void navigateToYear(int displayedYear, int targetYear) {
+		int yearDifference = displayedYear - targetYear;
+		if (yearDifference != 0) {
+			By navigationButtonLocator = By.xpath(yearDifference > 0 ? "(//*[@id=\"datePickerPrevious\"])[2]" : "(//*[@id=\"datePickerNext\"])[4]");
+			for (int i = 0; i < Math.abs(yearDifference); i++) {
+				highlightElement(navigationButtonLocator);
+				driver.findElement(navigationButtonLocator).click();
+				logger.debug("Navigated to year: {}", targetYear);
+			}
+			logger.info("Displayed Year after selection: {}", driver.findElement(By.xpath("(//*[@id=\"datePickerHeader\"])[2]")).getText());
+		}
+	}
+
+	/********************************************************************************************
+	 * Converts a numeric month to its corresponding abbreviated name.
+	 * 
+	 * This method converts the given month number (1-12) into its corresponding
+	 * month name (e.g., 1 -> Jan, 2 -> Feb).
+	 * 
+	 * @param monthNumber the numeric month (1-12)
+	 * @return the abbreviated month name (e.g., "Jan", "Feb") *
+	 * @throws IllegalArgumentException if the month number is invalid
+	 * 
+	 * @author Abhijeet Maske Created August 17, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+	public static String convertMonthNumberToName(int monthNumber) {
+		String[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+		if (monthNumber >= 1 && monthNumber <= 12) {
+			return months[monthNumber - 1];
+		} else {
+			logger.error("Invalid month number: {}", monthNumber);
+			throw new IllegalArgumentException("Invalid month number: " + monthNumber);
+		}
+	}
+
+	/********************************************************************************************
+	 * Retrieves text from an element using a dynamic XPath expression.
+	 * 
+	 * This method waits until the element located by the provided XPath expression
+	 * is visible, then retrieves and returns the text content of that element.
+	 * 
+	 * @param xpathExpression the XPath expression used to locate the element
+	 * @return the text content of the located element
+	 * 
+	 * @throws Exception if an error occurs while locating or retrieving the
+	 *                   element's text
+	 * 
+	 * @author Abhijeet Maske Created August 17, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+	public static String getTextByDynamicXpath(String xpathExpression) {
+		try {
+			Duration XSMALL_PAUSE = Duration.ofSeconds(Config.XSMALL_PAUSE);
+			WebDriverWait wait = new WebDriverWait(driver, XSMALL_PAUSE);
+			WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpression)));
+			String elementText = element.getText();
+			logger.info("Text retrieved from element: {}", elementText);
+			return elementText;
+		} catch (Exception e) {
+			logger.error("Error retrieving text with XPath {}: {}", xpathExpression, e.getMessage());
+			throw e;
+		}
+	}
+
+	/********************************************************************************************
+	 * Validates whether the given date is in the format DD/MM/YYYY and is a valid
+	 * calendar date.
+	 * 
+	 * This method uses regular expressions and the `SimpleDateFormat` class to
+	 * ensure that the date is correctly formatted and represents a valid date on
+	 * the calendar.
+	 * 
+	 * @param date the date string to validate
+	 * @return `true` if the date is valid and correctly formatted, `false`
+	 *         otherwise
+	 * 
+	 * @author Abhijeet Maske Created August 17, 2024
+	 * @version 1.0 August 17, 2024
+	 ********************************************************************************************/
+	private static boolean isValidDateFormat(String date) {
+		// Regular expression to validate the date format DD/MM/YYYY
+		String datePattern = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$";
+		if (!Pattern.matches(datePattern, date)) {
+			return false;
+		}
+		// Split the date to check day and month range
+		String[] dateParts = date.split("/");
+		int day = Integer.parseInt(dateParts[0]);
+		int month = Integer.parseInt(dateParts[1]);
+
+		// Additional check to ensure the date is valid (e.g., no 30th of February)
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		sdf.setLenient(false);
+		try {
+			sdf.parse(date); // Parse the date to ensure it's valid
+		} catch (ParseException e) {
+			return false;
+		}
+		// Ensure day is between 1-31 and month is between 1-12
+		if (day < 1 || day > 31 || month < 1 || month > 12) {
+			return false;
+		}
+		return true;
+	}
+	/* Datepicker end */
 }
