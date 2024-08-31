@@ -1646,6 +1646,59 @@ public class ElementInteractionUtils {
 			return false;
 		}
 	}
+	
+	public static boolean countTextInFilteredTable(String tableId, int tableColumnIndex, String searchText,
+			WebElement nextButton) {
+		int count = 0;
+		try {
+			WebElement table = driver.findElement(By.id(tableId));
+			scrollToElement(table);
+			List<WebElement> tableEntries = table.findElements(By.tagName("tr"));
+			if (tableEntries.size() > 2) {
+				String rowXpathPrefix = "//table[@id='" + tableId + "']/tbody/tr[";
+				String colXpathSuffix = "]/td[" + tableColumnIndex + "]";
+				while (true) {
+					int tableSize = tableEntries.size() - 1;
+					logger.info("Current number of table entries: {}", tableSize);
+
+					for (int i = 1; i <= tableSize; i++) {
+						WebElement cellElement = driver.findElement(By.xpath(rowXpathPrefix + i + colXpathSuffix));
+						String cellValue = cellElement.getText();
+						if (cellValue.equalsIgnoreCase(searchText)) {
+							highlightElement(cellElement);
+							pause(100);
+							logger.info("Text '{}' found in cell value: {}", searchText, cellValue);
+							count++;
+						} else {
+							logger.error("Unexpected text '{}' found in cell, expected '{}'", cellValue, searchText);
+						}
+					}
+
+					WebElement nextButtonLi = nextButton.findElement(By.xpath("./ancestor::li"));
+					if (nextButton != null && nextButton.isEnabled()
+							&& !nextButtonLi.getAttribute("class").contains("disabled")) {
+						highlightElement(nextButton);
+						WebElement copyright = driver.findElement(By.xpath("//*[@id='app']/div[2]/footer/div/a"));
+						scrollToElement(copyright);
+						nextButton.click();
+						logger.info("Next button clicked, checking the next set of entries");
+						tableEntries = driver.findElement(By.id(tableId)).findElements(By.tagName("tr"));
+					} else {
+						logger.info("Reached the end of the table, final count of '{}' is: {}", searchText, count);
+						break;
+					}
+				}
+			} else {
+				logger.warn("No data available in the table for search text: {}", searchText);
+			}
+		} catch (Exception e) {
+			logger.error("Exception occurred while counting text in filtered table: ", e);
+			throw e;
+		}
+
+		logger.info("Search completed. Total count of '{}' in the table: {}", searchText, count);
+		return true;
+	}
 
 	/********************************************************************************************
 	 * Uploads a file to the specified web element (e.g., file input field).
