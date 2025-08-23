@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+// [2025-08-23] Use NIO for cross-platform paths
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Utility class to read configurations from a properties file.
@@ -24,16 +28,21 @@ public class ReadConfig {
     public ReadConfig() {
         // Get the current working directory
         String userDir = System.getProperty("user.dir");
-        // Construct the path to the config.properties file
-        String path = userDir + "\\Configuration\\config.properties";
-        logger.info("Loading configuration from: {}", path);
+        // [2025-08-23] Construct cross-platform path to the config.properties file
+        Path configPath = Paths.get(userDir, "Configuration", "config.properties");
+        logger.info("Loading configuration from: {}", configPath);
+        properties = new Properties();
         try {
-            FileInputStream fis = new FileInputStream(path);
-            properties = new Properties();
-            properties.load(fis);
-            logger.info("Configuration loaded successfully from: {}", path);
+        	if (Files.exists(configPath)) {
+        		try (FileInputStream fis = new FileInputStream(configPath.toFile())) {
+        			properties.load(fis);
+        		}
+        		logger.info("Configuration loaded successfully from: {}", configPath);
+        	} else {
+        		logger.warn("Configuration file not found at: {}. Proceeding with defaults and suite parameters.", configPath);
+        	}
         } catch (IOException e) {
-        	logger.error("Error loading config properties from {}: {}", path, e.getMessage(), e);
+        	logger.error("Error loading config properties from {}: {}", configPath, e.getMessage(), e);
         }
     }
 

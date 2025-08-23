@@ -44,8 +44,13 @@ public class ExtentReportListener implements ITestListener {
 		logger.info("Finishing Test Suite: {}", context.getName());
 		extentReport.flush();
 		try {
-			Desktop.getDesktop().browse(new File(REPORT_PATH + REPORT_NAME).toURI());
-			logger.info("Test report opened in browser: {}", REPORT_PATH + REPORT_NAME);
+			// [2025-08-23] Avoid opening report automatically on headless environments
+			if (!java.awt.GraphicsEnvironment.isHeadless()) {
+				Desktop.getDesktop().browse(new File(REPORT_PATH + REPORT_NAME).toURI());
+				logger.info("Test report opened in browser: {}", REPORT_PATH + REPORT_NAME);
+			} else {
+				logger.info("Headless environment detected. Report generated at: {}{}", REPORT_PATH, REPORT_NAME);
+			}
 		} catch (IOException e) {
 			logger.error("Error opening test report in browser: {}", e.getMessage(), e);
 		}
@@ -54,11 +59,18 @@ public class ExtentReportListener implements ITestListener {
 	@Override
 	public void onTestStart(ITestResult result) {
 		logger.info("Starting Test: {}", result.getMethod().getMethodName());
+		// [2025-08-23] Bind an ExtentTest node per test method
+		ExtentTest test = extentReport.createTest(result.getMethod().getMethodName());
+		testThreadLocal.set(test);
 	}
 
 	@Override
 	public void onTestSuccess(ITestResult result) {
 		logger.info("Test Passed: {}", result.getMethod().getMethodName());
+		ExtentTest test = testThreadLocal.get();
+		if (test != null) {
+			test.log(Status.PASS, "Test passed");
+		}
 	}
 
 	@Override
@@ -74,19 +86,25 @@ public class ExtentReportListener implements ITestListener {
 			logger.error("Error capturing screenshot for failed test: {}", methodName, e);
 		}
 
-		testThreadLocal.get().log(Status.FAIL, "Test failed: " + result.getThrowable());
-		try {
-			testThreadLocal.get().log(Status.FAIL, "Test Failed: ",
+		ExtentTest test = testThreadLocal.get();
+		if (test != null) {
+			test.log(Status.FAIL, "Test failed: " + result.getThrowable());
+			try {
+				test.log(Status.FAIL, "Test Failed: ",
 					MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
-		} catch (Exception e) {
-			logger.error("Error attaching screenshot to Extent report: {}", e.getMessage(), e);
+			} catch (Exception e) {
+				logger.error("Error attaching screenshot to Extent report: {}", e.getMessage(), e);
+			}
 		}
 	}
 
 	@Override
 	public void onTestSkipped(ITestResult result) {
 		logger.warn("Test Skipped: {}", result.getMethod().getMethodName());
-		testThreadLocal.get().log(Status.SKIP, "Test skipped: " + result.getThrowable());
+		ExtentTest test = testThreadLocal.get();
+		if (test != null) {
+			test.log(Status.SKIP, "Test skipped: " + result.getThrowable());
+		}
 	}
 
 	public static ExtentTest getCurrentTest() {

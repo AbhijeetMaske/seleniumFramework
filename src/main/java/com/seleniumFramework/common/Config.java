@@ -78,11 +78,11 @@ public class Config {
 	public static final int XLARGE_PAUSE = 120;
 	
 	// File paths
-	
-	public static final String SELENIUM_GRID_FILE_PATH = System.getProperty("user.dir") + "\\src\\main\\resource\\grid\\SeleniumGrid.bat";
-	public static final String TEST_DATA_FILE_PATH = System.getProperty("user.dir") + "\\src\\main\\resource\\testdata\\testdata.xlsx";
-	public static final String LOCALIZATION_FOLDER_PATH = System.getProperty("user.dir") + "\\src\\main\\resource\\localization";
-	public static final String GSPEC_FILE_PATH = System.getProperty("user.dir") + "\\src\\main\\resource\\specs";
+	// [2025-08-23] Switched to forward slashes for cross-platform compatibility
+	public static final String SELENIUM_GRID_FILE_PATH = System.getProperty("user.dir") + "/src/main/resource/grid/SeleniumGrid.bat";
+	public static final String TEST_DATA_FILE_PATH = System.getProperty("user.dir") + "/src/main/resource/testdata/testdata.xlsx";
+	public static final String LOCALIZATION_FOLDER_PATH = System.getProperty("user.dir") + "/src/main/resource/localization";
+	public static final String GSPEC_FILE_PATH = System.getProperty("user.dir") + "/src/main/resource/specs";
 	public static final String PROD_TEST_FILE_PATH = "";
 	
 	//App config

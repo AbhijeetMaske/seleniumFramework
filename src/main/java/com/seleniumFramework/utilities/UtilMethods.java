@@ -8,6 +8,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+// [2025-08-23] Cross-platform paths
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Utility class containing various helper methods.
@@ -36,9 +40,11 @@ public class UtilMethods {
 
 		// Get the current working directory
 		String userDir = System.getProperty("user.dir");
-		// Construct the path to the screenshots directory
-		String destPath = userDir + "\\screenshots\\" + testName + ".png";
-		File dest = new File(destPath);
+		// [2025-08-23] Construct cross-platform path to the screenshots directory
+		Path screenshotsDir = Paths.get(userDir, "screenshots");
+		Files.createDirectories(screenshotsDir);
+		Path destPath = screenshotsDir.resolve(testName + ".png");
+		File dest = destPath.toFile();
 
 		try {
 			// Copy image file to the destination
@@ -49,6 +55,6 @@ public class UtilMethods {
 			throw e;
 		}
 
-		return destPath;
+		return destPath.toString();
 	}
 }

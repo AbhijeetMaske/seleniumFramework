@@ -10,34 +10,25 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
-import com.seleniumFramework.common.BaseClass;
+// [2025-08-23] Removed inheritance from BaseClass to keep POM pure
 import com.seleniumFramework.utilities.ElementInteractionUtils;
-import com.seleniumFramework.utilities.ExtentReportListener;
+// [2025-08-23] Keep reporting in tests/listeners; remove listener usage in POM
 
-public class LoginPage extends BaseClass {
+public class LoginPage {
 
 	protected WebDriver driver;
 	protected WebDriverWait wait;
 
 	// constructor
 	public LoginPage(WebDriver webDriver) {
-		this.driver = BaseClass.getDriver();
+		// [2025-08-23] Use the driver provided by the test, not BaseClass
+		this.driver = webDriver;
 		PageFactory.initElements(driver, this);
 		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 	}
 
-	// Create parent test node
-	ExtentTest parentTest = ExtentReportListener.createParentTest("Login Test", "Verify that login functionality works")
-			.assignAuthor("Abhijeet Maske");
-
-	// Assign tags
-	// ExtentReportListener.tags("Regression", "Smoke");
-
-	// Create a child node for the actual test steps
-	ExtentTest test = parentTest.createNode("Login Functionality Test");
-
-	LoginPage loginPage = new LoginPage(getDriver());
-
+	// [2025-08-23] Reporting should be handled by tests/listeners; removed Extent nodes here
+	
 	// identify WebElements
 	@FindBy(xpath = "/html/body/header/div/div/div/a[2]")
 	WebElement signUpButton;
@@ -51,12 +42,10 @@ public class LoginPage extends BaseClass {
 	public String getHompageUrl() {
 
 		String currentURL = driver.getCurrentUrl();
-		test.log(Status.PASS, "URL fetched " + currentURL);
 		return currentURL;
 	}
 
 	public boolean signup() throws InterruptedException {
-		// Ensure signUpButton is properly initialized
 		boolean status = false;
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(signUpButton));
@@ -64,8 +53,7 @@ public class LoginPage extends BaseClass {
 			ElementInteractionUtils.click(signUpButton);
 			status = true;
 		} catch (Exception e) {
-			logger.error("Test case verifyLoginIsWorking failed: " + e.getMessage());
-			test.log(Status.FAIL, "Test case verifyLoginIsWorking failed: " + e.getMessage());
+			// [2025-08-23] Logging should be done at test level; keep POM silent or throw
 		}
 		return status;
 	}

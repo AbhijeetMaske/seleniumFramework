@@ -23,10 +23,8 @@ public class Login extends BaseClass{
 	//@Test(retryAnalyzer = com.seleniumFramework.utilities.RetryAnalyzer.class)
 	public void gmailLogin() throws InterruptedException {	
 		getDriver().get(url);
-		logger.info("url opeed");
-		Thread.sleep(500);
+		logger.info("url opened"); // [2025-08-23] Fixed typo and removed sleeps
 		getDriver().manage().window().maximize();
-		Thread.sleep(500);
 		loginPage.getHompageUrl();
 		loginPage.signup();
 	}
